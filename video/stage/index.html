@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<title>plus小店 付款后充值流程</title>
+<title>Plus 会员充值教程</title>
 <link rel="stylesheet" href="../node_modules/@fontsource/noto-sans-sc/400.css">
 <link rel="stylesheet" href="../node_modules/@fontsource/noto-sans-sc/500.css">
 <link rel="stylesheet" href="../node_modules/@fontsource/noto-sans-sc/700.css">
@@ -22,7 +22,7 @@
         <span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span>
         <div id="url">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5f6675" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-          <span id="urlText">chong.cccard.uk</span>
+          <span id="urlText">xxxxx.xxxxxx.xx</span>
         </div>
       </div>
       <div id="screen">
@@ -41,13 +41,9 @@
         <img class="shot" id="rc11" src="../assets/recharge/r11_queued.png">
         <img class="shot" id="rc12" src="../assets/recharge/r12_processing.png">
         <img class="shot" id="rc13" src="../assets/recharge/r13_succeeded.png">
-        <!-- 16688 order query -->
-        <img class="shot" id="sh_oq" src="../assets/shot/10_order_query.png">
-        <img class="shot" id="sh_oqf" src="../assets/shot/11_order_query_focus.png">
-        <div id="oqWin"></div>
         <div class="hl-box" id="hlGuide" style="left:878px;top:280px;width:310px;height:190px"></div>
         <div class="hl-box" id="hlDone" style="left:864px;top:606px;width:450px;height:82px"></div>
-        <div class="hl-box" id="hlOq" style="left:286px;top:310px;width:868px;height:66px"></div>
+        <div class="hl-box" id="hlTip" style="left:140px;top:798px;width:694px;height:94px"></div>
         <div class="ripple" id="wRipple"></div>
         <svg class="cursor" id="wCursor" viewBox="0 0 30 40"><path d="M3 3 L3 33 L10.5 26 L15.5 37.5 L20.5 35.3 L15.6 24 L26 24 Z" fill="#111" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>
       </div>
@@ -56,8 +52,8 @@
 
   <!-- ============ hook ============ -->
   <div class="scene" id="s-hook">
-    <div id="hookTitle"><span class="hl">Plus</span> 会员<br>自助充值教程</div>
-    <div id="hookSub">付款之后，3 步完成充值</div>
+    <div id="hookTitle"><span class="hl">Plus</span> 会员<br>充值教程</div>
+    <div id="hookSub">拿到卡密后，3 步完成充值</div>
     <div id="hookSteps">
       <div class="hs" id="hs0"><span class="n">1</span>复制卡密</div><span class="ha" id="ha0">›</span>
       <div class="hs" id="hs1"><span class="n">2</span>填写信息</div><span class="ha" id="ha1">›</span>
@@ -70,53 +66,51 @@
     <div class="card" id="orderCard">
       <div class="oc-head">
         <div class="t"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M7 12.5l3.2 3.2L17 9"/></svg>付款成功 · 订单已完成</div>
-        <div class="chip">已自动发货</div>
+        <div class="chip">卡密已发放</div>
       </div>
       <div class="oc-body">
         <div class="oc-prod">
           <div class="ptile">Plus</div>
-          <div class="tt">官网正价直充 · Plus 会员 30 天<br><span style="font-size:24px;color:#8a93a3;font-weight:500">直充自己号 · 质保 30 天 · 自动发货</span></div>
+          <div class="tt">Plus 会员 · 卡密 (CDK)<br><span style="font-size:24px;color:#8a93a3;font-weight:500">在自助充值页面兑换</span></div>
           <div class="pr">× 1<b class="paid">已支付</b></div>
         </div>
         <div class="oc-rows">
           <div>订单号<span>FF2026110714283061</span></div>
           <div>下单时间<span>2026-11-07 14:28</span></div>
           <div>联系邮箱<span>demo@example.com</span></div>
-          <div>发货方式<span>自动发货</span></div>
+          <div>商品类型<span>卡密</span></div>
         </div>
         <div class="oc-key">
           <div class="lb">卡密</div>
           <div class="code" id="keyCode">PLUS-7XK2-M9QF-4TBA</div>
           <div class="copy" id="copyBtn"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span id="copyTxt">复制</span></div>
         </div>
-        <div class="oc-foot"><span>使用说明：<b>按商品说明到自助充值站兑换</b></span><span>售后：<b>店铺「联系TA」/ 售后群</b></span></div>
+        <div class="oc-foot"><span>使用说明：<b>复制卡密，到自助充值页面兑换</b></span></div>
       </div>
     </div>
     <div class="toast" id="copyToast" style="left:50%;top:70px;transform:translateX(-50%)"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#16b364" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>卡密已复制</div>
     <div id="mailToast">
       <div class="ic"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a3 3 0 0 1 3 3v12H7a3 3 0 0 1-3-3z"/><path d="M8 9h6M8 13h6"/></svg></div>
-      <div><div class="t">使用说明 · 自助充值</div><div class="s">复制卡密 → 打开自助充值站<br>粘贴卡密和账号凭证 → 开始充值</div></div>
+      <div><div class="t">使用说明 · 自助充值</div><div class="s">复制卡密 → 打开自助充值页面<br>粘贴卡密和账号凭证 → 开始充值</div></div>
     </div>
   </div>
 
-  <!-- ============ outro ============ -->
+  <!-- ============ outro: recap + notes (no shop, no QR, no links, no selling points) ============ -->
   <div class="scene" id="s-outro">
-    <div id="outTitle">Plus 会员自助充值</div>
-    <div id="outSub">就上 <b>16688 · plus小店</b></div>
+    <div id="outTitle">3 步完成充值</div>
+    <div id="outSub">建议收藏，充值时对照操作</div>
     <div id="outSteps">
       <div class="os" id="os0"><span class="n">1</span>复制卡密</div><span class="os-arrow" id="oa0">›</span>
-      <div class="os" id="os1"><span class="n">2</span>填写信息</div><span class="os-arrow" id="oa1">›</span>
+      <div class="os" id="os1"><span class="n">2</span>填写卡密和 Session</div><span class="os-arrow" id="oa1">›</span>
       <div class="os" id="os2"><span class="n">3</span>提交充值</div>
     </div>
-    <div id="outChips">
-      <span class="oc">付款秒发卡密</span><span class="oc">全自动充值</span><span class="oc">质保 30 天</span><span class="oc">可开国内发票</span><span class="oc">订单查询找回卡密</span><span class="oc">售后群答疑</span>
+    <div class="card" id="noteCard">
+      <div class="nh">注意事项</div>
+      <div class="nr" id="nr0"><span class="ni">!</span><span class="nt">卡密和 Session 都要<b>妥善保管</b>，不要发给他人</span></div>
+      <div class="nr" id="nr1"><span class="ni">!</span><span class="nt">提交前<b>核对充值账号和套餐</b>，确认无误再提交</span></div>
+      <div class="nr" id="nr2"><span class="ni">!</span><span class="nt">充值成功后<b>重新登录账号</b>，即可看到 Plus 会员</span></div>
     </div>
-    <div class="card" id="qrCard">
-      <div class="qr" id="qrShopHolder"></div>
-      <div class="t">扫码进店</div>
-      <div class="u">16688.com.cn 搜索 <b>plus小店</b><br>16688.com.cn/shop/S382939</div>
-    </div>
-    <div id="disclaimer">本视频为流程演示：订单页为示意画面，充值页面使用演示数据，实际以页面和使用说明为准 · 请遵守相关服务条款合规使用</div>
+    <div id="disclaimer">本视频为操作流程演示：订单页为示意画面，充值页面使用演示数据，实际以页面提示为准 · 请遵守相关服务条款合规使用</div>
   </div>
 
   <!-- ============ HUD ============ -->
@@ -137,7 +131,6 @@
     <div id="fade"></div>
   </div>
 </div>
-<script src="qr.js"></script>
 <script src="stage.js"></script>
 </body>
 </html>

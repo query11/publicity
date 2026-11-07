@@ -11,7 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "@fontsource/noto-sans-sc": "^5.3.1",
-    "@fontsource/zcool-qingke-huangyou": "^5.3.0",
-    "qrcode": "^1.5.4"
+    "@fontsource/zcool-qingke-huangyou": "^5.3.0"
   }
 }

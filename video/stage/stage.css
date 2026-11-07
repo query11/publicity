@@ -53,13 +53,13 @@ html, body {
   display: flex; align-items: center; gap: 8px; padding: 0 14px; color: #3c4250; font-size: 14px; letter-spacing: .2px;
 }
 #url svg { flex: none; }
+#urlText { filter: blur(5px); color: #8a93a3; }  /* no site address in the video */
 #screen { position: absolute; left: 0; top: 40px; width: 1440px; height: 900px; overflow: hidden; background: #f0f3f6; }
 .shot { position: absolute; left: 0; top: 0; width: 1440px; height: 900px; opacity: 0; }
 #descWin { position: absolute; left: 444px; top: 202px; width: 552px; height: 320px; overflow: hidden; border-radius: 10px; opacity: 0; }
 #descImg { position: absolute; left: 0; top: 0; width: 552px; will-change: transform; }
 #typeWin { position: absolute; left: 672px; top: 590px; width: 328px; height: 44px; overflow: hidden; opacity: 0; }
-#typeWin img, #oqWin img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; }
-#oqWin { position: absolute; left: 288px; top: 310px; width: 864px; height: 66px; overflow: hidden; opacity: 0; }
+#typeWin img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; }
 .hl-box {
   position: absolute; border: 4px solid var(--brand); border-radius: 14px; opacity: 0;
   box-shadow: 0 0 0 6px rgba(255,80,0,.18), 0 0 40px rgba(255,80,0,.45);
@@ -111,23 +111,19 @@ html, body {
 #mailToast .t { font-size: 26px; font-weight: 900; }
 #mailToast .s { margin-top: 6px; font-size: 22px; color: var(--ink-2); line-height: 1.45; }
 
-/* outro */
-#outTitle { position: absolute; left: 150px; top: 190px; font-family: 'ZCOOL QingKe HuangYou', 'Noto Sans SC'; font-size: 120px; line-height: 1.15; }
-#outSub { position: absolute; left: 154px; top: 360px; font-size: 52px; font-weight: 900; color: #e9ecf2; }
-#outSub b { color: var(--brand); }
-#outSteps { position: absolute; left: 150px; top: 500px; display: flex; align-items: center; gap: 22px; }
-.os { display: flex; align-items: center; gap: 16px; padding: 22px 30px; border-radius: 22px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); font-size: 36px; font-weight: 700; opacity: 0; }
+/* outro: recap + notes */
+#outTitle { position: absolute; left: 0; width: 1920px; top: 120px; text-align: center; font-family: 'ZCOOL QingKe HuangYou', 'Noto Sans SC'; font-size: 124px; line-height: 1.15; opacity: 0; }
+#outSub { position: absolute; left: 0; width: 1920px; top: 286px; text-align: center; font-size: 42px; font-weight: 700; color: #c9ced8; opacity: 0; }
+#outSteps { position: absolute; left: 0; width: 1920px; top: 390px; display: flex; justify-content: center; align-items: center; gap: 22px; }
+.os { display: flex; align-items: center; gap: 16px; padding: 20px 30px; border-radius: 22px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); font-size: 36px; font-weight: 700; opacity: 0; }
 .os .n { width: 52px; height: 52px; border-radius: 50%; background: var(--brand); display: grid; place-items: center; font-size: 30px; font-weight: 900; }
 .os-arrow { color: rgba(255,255,255,.4); font-size: 40px; opacity: 0; }
-#outChips { position: absolute; left: 150px; top: 650px; width: 1000px; display: flex; flex-wrap: wrap; gap: 16px; }
-.oc { padding: 12px 24px; border-radius: 14px; background: rgba(255,80,0,.16); color: #ffb48a; font-size: 30px; font-weight: 700; opacity: 0; }
-#qrCard { left: 1270px; top: 210px; width: 500px; height: 610px; padding: 44px; text-align: center; }
-#qrCard .qr { width: 360px; height: 360px; margin: 0 auto; padding: 10px; border: 2px solid var(--line); border-radius: 22px; }
-#qrCard .qr svg { width: 100%; height: 100%; display: block; }
-#qrCard .t { margin-top: 26px; font-size: 40px; font-weight: 900; }
-#qrCard .u { margin-top: 10px; font-size: 24px; color: var(--ink-3); }
-#qrCard .u b { color: var(--brand); }
-#disclaimer { position: absolute; left: 0; right: 0; bottom: 44px; text-align: center; font-size: 22px; color: rgba(255,255,255,.45); }
+#noteCard { left: 360px; top: 560px; width: 1200px; padding: 34px 56px 30px; opacity: 0; }
+#noteCard .nh { font-size: 34px; font-weight: 900; color: var(--ink); margin-bottom: 14px; }
+#noteCard .nr { display: flex; align-items: center; gap: 20px; padding: 16px 0; font-size: 34px; font-weight: 500; color: var(--ink-2); border-top: 1px solid var(--line); opacity: 0; }
+#noteCard .nr b { color: var(--ink); font-weight: 900; }
+#noteCard .ni { flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--brand-soft); color: var(--brand); display: grid; place-items: center; font-size: 28px; font-weight: 900; }
+#disclaimer { position: absolute; left: 0; right: 0; bottom: 44px; text-align: center; font-size: 22px; color: rgba(255,255,255,.45); opacity: 0; }
 
 /* ---------- HUD ---------- */
 #hud { position: absolute; inset: 0; pointer-events: none; }

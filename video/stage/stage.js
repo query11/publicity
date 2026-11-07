@@ -1,7 +1,8 @@
-/* plus小店 付款后充值流程 — deterministic timeline.
+/* Plus 会员充值教程 — deterministic timeline.
  * window.seek(t) renders the frame at time t (seconds). window.STAGE_READY resolves once fonts/images are ready.
  * Open index.html?play in a browser to preview in real time, or index.html?t=20 to inspect one frame.
  * No monetary amount and no "GPT" wording appear anywhere (the captures are sanitised, see tools/capture_recharge.js).
+ * Pure tutorial: no shop name, platform name, QR code, link, site address or selling point appears anywhere.
  */
 (() => {
   const FPS = 30;
@@ -45,49 +46,47 @@
     [19.4, [...P(487, 470), 1.5]], [21.6, [...P(487, 470), 1.5]],
     [22.3, [...P(800, 560), 1.2]], [23.0, [...P(800, 560), 1.2]],
     [23.5, [...P(720, 450), 1.35]], [24.8, [...P(720, 450), 1.35]],
-    [25.5, [...P(1088, 700), 1.5]], [32.15, [...P(1088, 700), 1.5]],
-    // 16688 order query
-    [32.16, NEUTRAL, 'lin'], [33.6, NEUTRAL],
-    [34.4, [...P(720, 343), 1.45]], [42.0, [...P(720, 343), 1.45]],
+    [25.5, [...P(1088, 700), 1.5]], [32.4, [...P(1088, 700), 1.5]],
+    // tip: the site's own "温馨提示" box at the bottom of the page
+    [33.7, [...P(487, 845), 1.4]], [42.0, [...P(487, 845), 1.4]],
   ];
   // screen timeline: [start, image id, crossfade]; the latest started entry is shown on top of the previous one
   const SCREENS = [
     [0, 'rc00', 0], [14.1, 'rc01', 0.06], [14.45, 'rc02', 0.06], [15.2, 'rc03', 0.15], [17.6, 'rc04', 0.1],
     [18.8, 'rc03', 0.1], [19.6, 'rc05', 0.06], [19.95, 'rc06', 0.06], [20.8, 'rc07', 0.15], [22.5, 'rc08', 0.1],
     [23.1, 'rc09', 0.25], [24.1, 'rc10', 0.1], [24.85, 'rc11', 0.25], [26.6, 'rc12', 0.2], [28.6, 'rc13', 0.25],
-    [32.15, 'sh_oq', 0], [34.5, 'sh_oqf', 0.06],
   ];
-  const URLS = [[0, 'chong.cccard.uk'], [32.15, 'www.16688.com.cn/order']];
-  const OQ_T0 = 34.75, OQ_DT = 0.1, OQ_N = 16, OQ_HOVER = 36.9;
+  const URLS = [[0, 'xxxxx.xxxxxx.xx']];   // placeholder, blurred in CSS: the site address is not shown
   const WCUR = [
     [13.2, [1000, 830]], [14.0, [330, 291]], [14.6, [400, 335]], [16.8, [400, 335]], [17.6, [965, 444]], [18.5, [965, 444]],
     [19.55, [330, 430]], [20.1, [440, 470]], [21.8, [440, 470]], [22.5, [779, 731]], [23.2, [779, 731]], [24.05, [842, 629]],
     [24.7, [842, 629]], [25.4, [990, 760]], [26.6, [990, 760]],
-    [31.6, [1150, 640]], [33.4, [1150, 640]], [34.4, [640, 343]], [34.8, [700, 398]], [36.3, [700, 398]], [36.9, [1073, 343]], [42, [1073, 343]],
+    [31.6, [1150, 640]], [33.6, [1150, 640]], [34.7, [640, 846]], [42, [640, 846]],
   ];
-  const WCLICKS = [14.1, 19.6, 22.9, 24.6, 34.45];
+  const WCLICKS = [14.1, 19.6, 22.9, 24.6];
   const WCUR_VIS = [[13.2, 25.8], [33.4, 40.5]];
-  const WORLD_VIS = [[12.2, 32.15], [32.2, 40.5]];
-  const HL = [['hlGuide', 16.7, 18.7], ['hlDone', 28.9, 31.7], ['hlOq', 37.0, 39.9]];
+  const WORLD_VIS = [[12.2, 40.5]];
+  const HL = [['hlGuide', 16.7, 18.7], ['hlDone', 28.9, 31.7], ['hlTip', 34.9, 39.9]];
 
   /* ---------------- HUD ---------------- */
   const STEPS = [
     [4.6, 12.4, 'STEP 1', '复制卡密', 0],
     [12.4, 22.3, 'STEP 2', '填写卡密和账号凭证', 1],
     [22.3, 32.2, 'STEP 3', '提交充值', 2],
-    [32.2, 40.0, '小贴士', '订单查询 · 找回卡密', 3],
+    [32.2, 40.0, '小贴士', '遇到问题怎么办', 3],
   ];
   const HUD_VIS = [4.6, 40.0];
   const CAPS = [
-    [5.0, 8.0, '付款后自动发货，订单页<b>直接复制卡密</b>'],
-    [8.2, 12.0, '按使用说明，打开<b>自助充值站</b>'],
+    [5.0, 8.0, '在订单详情中找到卡密，点击<b>复制</b>'],
+    [8.2, 12.0, '按使用说明，打开<b>自助充值页面</b>'],
     [12.8, 15.9, '粘贴<b>会员卡密 (CDK)</b>，自动识别套餐'],
     [16.1, 19.1, '按右侧指南：登录账号，打开 session，<b>复制完整凭证</b>'],
     [19.3, 22.1, '粘贴<b>账号凭证 (Session)</b>，自动校验账号'],
     [22.3, 24.7, '核对账号和套餐，点击「<b>开始充值</b>」并确认提交'],
     [24.9, 28.4, '任务自动排队处理，<b>预计 3 分钟内完成</b>'],
     [28.7, 31.8, '充值成功！重新登录账号即可看到 <b>Plus 会员</b>'],
-    [33.5, 39.8, '卡密忘了保存？在 16688「<b>订单查询</b>」输入下单邮箱即可找回'],
+    [32.9, 36.2, '遇到问题，先看页面下方的「<b>温馨提示</b>」'],
+    [36.4, 39.8, '提示 Session 已失效？<b>换个浏览器重新登录</b>，获取新 Session 再提交'],
   ];
   const WIPES = [4.3, 12.0, 31.9, 39.65];
   const TAGS = [[4.8, 12.3, '示意画面'], [12.6, 31.9, '演示数据']];
@@ -115,16 +114,14 @@
   [15.2, 20.8].forEach(t => SFX.push({ t, type: 'pop' }));
   [24.85, 26.6].forEach(t => SFX.push({ t, type: 'tick' }));
   SFX.push({ t: SUCCESS_T, type: 'success' });
-  for (let i = 0; i < OQ_N; i++) SFX.push({ t: OQ_T0 + i * OQ_DT, type: 'key', seed: 40 + i });
+  SFX.push({ t: 34.9, type: 'pop', gain: 0.6 });
   [0, 1, 2].forEach(i => SFX.push({ t: OUT0 + 0.9 + i * 0.3, type: 'pop', gain: 0.7 }));
+  [0, 1, 2].forEach(i => SFX.push({ t: OUT0 + 2.2 + i * 0.35, type: 'tick', gain: 0.6 }));
   SFX.sort((a, b) => a.t - b.t);
 
   /* ---------------- init ---------------- */
   const el = {};
   document.querySelectorAll('[id]').forEach(n => { el[n.id] = n; });
-  for (let i = 1; i <= OQ_N; i++) { const im = new Image(); im.src = `../assets/oq/q${String(i).padStart(2, '0')}.png`; el.oqWin.appendChild(im); }
-  { const im = new Image(); im.src = '../assets/oq/q_hover.png'; el.oqWin.appendChild(im); }
-  el.qrShopHolder.innerHTML = window.QR.shop;
   const SHOT_IDS = [...new Set(SCREENS.map(s => s[1]))];
   // confetti (HUD layer), bursting from the success card
   const confetti = [];
@@ -205,11 +202,6 @@
       let url = URLS[0][1];
       for (const [a, u] of URLS) if (t >= a) url = u;
       if (url !== lastUrl) { el.urlText.textContent = url; lastUrl = url; }
-      // typing overlay (order query)
-      const qOn = t >= OQ_T0;
-      op(el.oqWin, qOn ? 1 : 0);
-      el.oqWin.style.zIndex = 3;
-      if (qOn) { const k = t >= OQ_HOVER ? OQ_N : clamp(Math.floor((t - OQ_T0) / OQ_DT), 0, OQ_N - 1); Array.from(el.oqWin.children).forEach((im, i) => { im.style.opacity = i === k ? 1 : 0; }); }
       // highlight boxes
       for (const [id, a, b] of HL) { const n = el[id]; op(n, vis(t, a, b, 0.25)); n.style.zIndex = 4; n.style.transform = `scale(${1 + 0.06 * (1 - seg(t, a, a + 0.35, 'out'))})`; }
       // cursor + ripple
@@ -266,10 +258,10 @@
       op(el.outSub, b); el.outSub.style.transform = `translateY(${(1 - b) * 40}px)`;
       [0, 1, 2].forEach(i => popIn(el['os' + i], t, OUT0 + 0.9 + i * 0.3, 0.7));
       [0, 1].forEach(i => op(el['oa' + i], clamp((t - OUT0 - 1.05 - i * 0.3) / 0.2)));
-      Array.from(el.outChips.children).forEach((c, i) => { const s = OUT0 + 1.9 + i * 0.15; op(c, clamp((t - s) / 0.2)); c.style.transform = `translateY(${(1 - seg(t, s, s + 0.3, 'out')) * 20}px)`; });
-      const q = seg(t, OUT0 + 0.6, OUT0 + 1.3, 'out');
-      op(el.qrCard, q); el.qrCard.style.transform = `translateX(${(1 - q) * 90}px)`;
-      op(el.disclaimer, clamp((t - OUT0 - 2.4) / 0.5));
+      const q = seg(t, OUT0 + 1.7, OUT0 + 2.3, 'out');
+      op(el.noteCard, q); el.noteCard.style.transform = `translateY(${(1 - q) * 50}px)`;
+      [0, 1, 2].forEach(i => { const s = OUT0 + 2.2 + i * 0.35; op(el['nr' + i], clamp((t - s) / 0.25)); el['nr' + i].style.transform = `translateX(${(1 - seg(t, s, s + 0.35, 'out')) * -30}px)`; });
+      op(el.disclaimer, clamp((t - OUT0 - 3.4) / 0.5));
     }
 
     /* confetti on recharge success */
