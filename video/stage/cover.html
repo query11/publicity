@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>plus小店 封面</title>
+<link rel="stylesheet" href="../node_modules/@fontsource/noto-sans-sc/700.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/noto-sans-sc/900.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/zcool-qingke-huangyou/400.css">
+<link rel="stylesheet" href="stage.css">
+<style>
+  #cover { position: absolute; inset: 0; overflow: hidden; background: var(--bg); }
+  #cover .glow { filter: blur(100px); }
+  .shotcard { position: absolute; border-radius: 18px; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.1); background: #fff; }
+  .shotcard .bar { height: 30px; background: #eef0f3; display: flex; align-items: center; gap: 7px; padding: 0 14px; }
+  .shotcard .bar i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+  .shotcard img { display: block; }
+  #c1 { left: 1010px; top: 120px; width: 900px; transform: rotate(4deg); }
+  #c1 .crop { width: 900px; height: 520px; overflow: hidden; position: relative; }
+  #c1 img { position: absolute; width: 1440px; left: -440px; top: -380px; }
+  #c2 { left: 880px; top: 560px; width: 760px; transform: rotate(-3deg); }
+  #c2 .crop { width: 760px; height: 420px; overflow: hidden; position: relative; }
+  #c2 img { position: absolute; width: 1200px; left: -150px; top: -235px; }
+  #title { position: absolute; left: 90px; top: 150px; font-family: 'ZCOOL QingKe HuangYou', 'Noto Sans SC'; font-size: 132px; line-height: 1.12; color: #fff; text-shadow: 0 8px 30px rgba(0,0,0,.5); }
+  #title b { color: var(--brand); font-weight: 400; }
+  #steps { position: absolute; left: 96px; top: 520px; display: flex; gap: 14px; align-items: center; }
+  #steps span { font-size: 40px; font-weight: 900; color: #fff; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); padding: 12px 24px; border-radius: 18px; }
+  #steps em { color: rgba(255,255,255,.5); font-style: normal; font-size: 44px; }
+  #shop { position: absolute; left: 96px; top: 680px; display: flex; align-items: center; gap: 24px; }
+  #shop img { width: 120px; height: 120px; border-radius: 26px; }
+  #shop .n { font-size: 64px; font-weight: 900; color: #fff; }
+  #shop .p { font-size: 32px; font-weight: 700; color: #ffb48a; margin-top: 4px; }
+  #badge { position: absolute; left: 96px; top: 880px; display: flex; gap: 16px; }
+  #badge span { font-size: 34px; font-weight: 900; color: #fff; background: var(--brand); padding: 10px 24px; border-radius: 14px; }
+  #ok { position: absolute; left: 1500px; top: 70px; background: var(--ok); color: #fff; font-size: 44px; font-weight: 900; padding: 16px 30px; border-radius: 20px; transform: rotate(6deg); box-shadow: 0 20px 50px rgba(22,179,100,.45); }
+</style>
+</head>
+<body>
+<div id="cover">
+  <div class="glow" id="glow1" style="transform:translate(-250px,-300px)"></div>
+  <div class="glow" id="glow2" style="transform:translate(1100px,300px)"></div>
+  <div id="grid"></div>
+  <div class="shotcard" id="c2"><div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div><div class="crop"><img src="../assets/shot/02_shop_hover.png"></div></div>
+  <div class="shotcard" id="c1"><div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div><div class="crop"><img src="../assets/recharge/r13_succeeded.png"></div></div>
+  <div id="ok">✓ 充值成功</div>
+  <div id="title">GPT Plus<br><b>3 步</b>自助充值</div>
+  <div id="steps"><span>店铺下单</span><em>›</em><span>秒收卡密</span><em>›</em><span>卡密充值</span></div>
+  <div id="shop"><img src="../assets/shot/avatar.png"><div><div class="n">plus小店</div><div class="p">16688 · 专业数字卡密自动交易平台</div></div></div>
+  <div id="badge"><span>全流程实操演示</span><span>自动发货</span></div>
+</div>
+<script>
+  window.STAGE_READY = (async () => {
+    await Promise.all(Array.from(document.images).map(i => i.decode().catch(() => {})));
+    const text = document.body.innerText;
+    await Promise.all([700, 900].map(w => document.fonts.load(`${w} 40px "Noto Sans SC"`, text)).concat([document.fonts.load('400 100px "ZCOOL QingKe HuangYou"', text)]));
+    await document.fonts.ready;
+  })();
+</script>
+</body>
+</html>
