@@ -77,7 +77,7 @@ async function renderRange(browser, f0, f1, fps, out, label) {
     }
     await Promise.all(jobs);
     const list = path.join(tmp, 'list.txt');
-    fs.writeFileSync(list, parts.map(p => `file '${p}'`).join('\n'));
+    fs.writeFileSync(list, parts.map(p => `file '${path.resolve(p)}'`).join('\n'));
     await new Promise((res, rej) => spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy', '-movflags', '+faststart', out], { stdio: 'inherit' }).on('close', c => (c === 0 ? res() : rej(new Error('concat ' + c)))));
     fs.rmSync(tmp, { recursive: true, force: true });
     console.log('video written', out);
