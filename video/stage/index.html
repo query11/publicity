@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<title>plus小店 充值流程演示</title>
+<title>plus小店 付款后充值流程</title>
 <link rel="stylesheet" href="../node_modules/@fontsource/noto-sans-sc/400.css">
 <link rel="stylesheet" href="../node_modules/@fontsource/noto-sans-sc/500.css">
 <link rel="stylesheet" href="../node_modules/@fontsource/noto-sans-sc/700.css">
@@ -15,24 +15,17 @@
   <!-- background -->
   <div id="bg"><div class="glow" id="glow1"></div><div class="glow" id="glow2"></div><div id="grid"></div></div>
 
-  <!-- ============ browser recording (real screenshots, amounts blurred) ============ -->
+  <!-- ============ browser recording (real pages; amounts blurred, demo data) ============ -->
   <div id="world">
     <div id="browser">
       <div id="bar">
         <span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span>
         <div id="url">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5f6675" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-          <span id="urlText">www.16688.com.cn/shop/S382939</span>
+          <span id="urlText">chong.cccard.uk</span>
         </div>
       </div>
       <div id="screen">
-        <!-- 16688 shop -->
-        <img class="shot" id="sh_shop" src="../assets/shot/01_shop.png">
-        <img class="shot" id="sh_hover" src="../assets/shot/02_shop_hover.png">
-        <img class="shot" id="sh_modal" src="../assets/shot/03_modal.png">
-        <img class="shot" id="sh_focus" src="../assets/shot/05_email_focus.png">
-        <img class="shot" id="sh_filled" src="../assets/shot/07_modal_filled.png">
-        <img class="shot" id="sh_confirm" src="../assets/shot/09_confirm_hover.png">
         <!-- self-service recharge site (demo data) -->
         <img class="shot" id="rc00" src="../assets/recharge/r00_base.png">
         <img class="shot" id="rc01" src="../assets/recharge/r01_cdk_focus.png">
@@ -51,11 +44,7 @@
         <!-- 16688 order query -->
         <img class="shot" id="sh_oq" src="../assets/shot/10_order_query.png">
         <img class="shot" id="sh_oqf" src="../assets/shot/11_order_query_focus.png">
-        <div id="descWin"><img id="descImg" src="../assets/shot/desc_tall.png"></div>
-        <div id="typeWin"></div>
         <div id="oqWin"></div>
-        <div class="hl-box" id="hlCard" style="left:441px;top:329px;width:196px;height:302px"></div>
-        <div class="hl-box" id="hlPay" style="left:436px;top:708px;width:384px;height:66px"></div>
         <div class="hl-box" id="hlGuide" style="left:878px;top:280px;width:310px;height:190px"></div>
         <div class="hl-box" id="hlDone" style="left:864px;top:606px;width:450px;height:82px"></div>
         <div class="hl-box" id="hlOq" style="left:286px;top:310px;width:868px;height:66px"></div>
@@ -65,106 +54,28 @@
     </div>
   </div>
 
-  <!-- ============ 0. hook ============ -->
+  <!-- ============ hook ============ -->
   <div class="scene" id="s-hook">
-    <div id="hookTitle">开通 GPT Plus<br>总是卡在<span class="hl">付款</span>这一步？</div>
-    <div id="pains">
-      <div class="pain" id="pn0"><span class="x"><svg width="24" height="24" viewBox="0 0 24 24" stroke="#fff" stroke-width="3.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>没有海外信用卡</div>
-      <div class="pain" id="pn1"><span class="x"><svg width="24" height="24" viewBox="0 0 24 24" stroke="#fff" stroke-width="3.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>虚拟卡绑卡被拒</div>
-      <div class="pain" id="pn2"><span class="x"><svg width="24" height="24" viewBox="0 0 24 24" stroke="#fff" stroke-width="3.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></span>找人代付不放心</div>
-    </div>
-    <div id="hookAns">
-      <div class="big"><b>3 步</b>自助充值</div>
-      <div class="sub">拍下<b>秒发卡密</b>· 全自动充值</div>
+    <div id="hookTitle"><span class="hl">Plus</span> 会员<br>自助充值教程</div>
+    <div id="hookSub">付款之后，3 步完成充值</div>
+    <div id="hookSteps">
+      <div class="hs" id="hs0"><span class="n">1</span>复制卡密</div><span class="ha" id="ha0">›</span>
+      <div class="hs" id="hs1"><span class="n">2</span>填写信息</div><span class="ha" id="ha1">›</span>
+      <div class="hs" id="hs2"><span class="n">3</span>提交充值</div>
     </div>
   </div>
 
-  <!-- ============ 1. shop intro ============ -->
-  <div class="scene" id="s-intro">
-    <div class="card" id="introCard">
-      <div class="row">
-        <img class="avatar" src="../assets/shot/avatar.png">
-        <div>
-          <div class="name">plus小店</div>
-          <div class="plat"><span class="p16688">16688</span>专业数字卡密自动交易平台 · 入驻店铺</div>
-        </div>
-      </div>
-      <div id="introStat"><div class="n" id="statN">16000+</div><div class="l">本商品已售</div></div>
-      <div id="introBadges">
-        <div class="badge dark">官网正价直充</div>
-        <div class="badge">直充自己号</div>
-        <div class="badge">24h 自动发货</div>
-        <div class="badge">质保 30 天</div>
-        <div class="badge">可开国内发票</div>
-        <div class="badge">官方账单</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============ pay (illustration, no amounts) ============ -->
-  <div class="scene" id="s-pay">
-    <div class="card" id="payCard">
-      <div class="pc-head"><span>订单支付</span><span class="timer">剩余支付时间 <b id="payTimer">14:59</b></span></div>
-      <div class="pc-prod">GPT Plus 官方充值 30 天</div>
-      <div class="pc-item">plus小店 · 官网正价直充 · 数量 1</div>
-      <div class="pc-qr" id="payQr">
-        <div id="qrPayHolder"></div>
-        <span class="corner" style="left:-4px;top:-4px;border-right:0;border-bottom:0;border-radius:18px 0 0 0"></span>
-        <span class="corner" style="right:-4px;top:-4px;border-left:0;border-bottom:0;border-radius:0 18px 0 0"></span>
-        <span class="corner" style="left:-4px;bottom:-4px;border-right:0;border-top:0;border-radius:0 0 0 18px"></span>
-        <span class="corner" style="right:-4px;bottom:-4px;border-left:0;border-top:0;border-radius:0 0 18px 0"></span>
-      </div>
-      <div class="pc-tip">请使用 <b>支付宝</b> 扫码完成付款</div>
-      <div id="payDone">
-        <div class="okc"><svg width="84" height="84" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-        <div class="t">支付成功</div>
-        <div class="s"><span class="spin" id="paySpin"></span>系统正在自动发货…</div>
-      </div>
-    </div>
-    <div id="phone">
-      <div id="phoneScr">
-        <div class="notch"></div>
-        <div class="ps" id="psScan">
-          <div class="vf">
-            <div class="qrmini" id="qrMiniHolder"></div>
-            <span class="c" style="left:0;top:0;border-right:0;border-bottom:0"></span>
-            <span class="c" style="right:0;top:0;border-left:0;border-bottom:0"></span>
-            <span class="c" style="left:0;bottom:0;border-right:0;border-top:0"></span>
-            <span class="c" style="right:0;bottom:0;border-left:0;border-top:0"></span>
-          </div>
-          <div class="line" id="scanLine"></div>
-          <div class="lbl">将二维码放入框内，即可自动扫描</div>
-        </div>
-        <div class="ps" id="psPay">
-          <div class="sheet" id="paySheet">
-            <div class="l">确认付款</div>
-            <div class="a">GPT Plus 30 天</div>
-            <div class="row"><span>商品来源</span><span>16688 · plus小店</span></div>
-            <div class="row" style="margin-top:0"><span>付款方式</span><span>账户余额</span></div>
-            <div class="btn" id="payBtn">立即付款</div>
-          </div>
-        </div>
-        <div class="ps" id="psOk">
-          <div class="okc"><svg width="66" height="66" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-          <div class="t">支付成功</div>
-          <div class="s">订单已支付</div>
-        </div>
-        <div id="tapDot"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============ order delivered (illustration, no amounts) ============ -->
+  <!-- ============ STEP 1: order delivered (illustration) ============ -->
   <div class="scene" id="s-order">
     <div class="card" id="orderCard">
       <div class="oc-head">
-        <div class="t"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M7 12.5l3.2 3.2L17 9"/></svg>订单已完成</div>
+        <div class="t"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M7 12.5l3.2 3.2L17 9"/></svg>付款成功 · 订单已完成</div>
         <div class="chip">已自动发货</div>
       </div>
       <div class="oc-body">
         <div class="oc-prod">
-          <img src="../assets/shot/product.png">
-          <div class="tt">官网正价直充 GPT Plus 官方充值 30 天<br><span style="font-size:24px;color:#8a93a3;font-weight:500">直充自己号 · 质保 30 天 · 自动发货</span></div>
+          <div class="ptile">Plus</div>
+          <div class="tt">官网正价直充 · Plus 会员 30 天<br><span style="font-size:24px;color:#8a93a3;font-weight:500">直充自己号 · 质保 30 天 · 自动发货</span></div>
           <div class="pr">× 1<b class="paid">已支付</b></div>
         </div>
         <div class="oc-rows">
@@ -190,22 +101,22 @@
 
   <!-- ============ outro ============ -->
   <div class="scene" id="s-outro">
-    <div id="outTitle">GPT Plus 自助充值</div>
+    <div id="outTitle">Plus 会员自助充值</div>
     <div id="outSub">就上 <b>16688 · plus小店</b></div>
     <div id="outSteps">
-      <div class="os" id="os0"><span class="n">1</span>店铺下单</div><span class="os-arrow" id="oa0">›</span>
-      <div class="os" id="os1"><span class="n">2</span>秒收卡密</div><span class="os-arrow" id="oa1">›</span>
-      <div class="os" id="os2"><span class="n">3</span>卡密充值</div>
+      <div class="os" id="os0"><span class="n">1</span>复制卡密</div><span class="os-arrow" id="oa0">›</span>
+      <div class="os" id="os1"><span class="n">2</span>填写信息</div><span class="os-arrow" id="oa1">›</span>
+      <div class="os" id="os2"><span class="n">3</span>提交充值</div>
     </div>
     <div id="outChips">
-      <span class="oc">官网正价直充</span><span class="oc">24h 自动发货</span><span class="oc">质保 30 天</span><span class="oc">可开国内发票</span><span class="oc">平台担保交易</span><span class="oc">售后群答疑</span>
+      <span class="oc">付款秒发卡密</span><span class="oc">全自动充值</span><span class="oc">质保 30 天</span><span class="oc">可开国内发票</span><span class="oc">订单查询找回卡密</span><span class="oc">售后群答疑</span>
     </div>
     <div class="card" id="qrCard">
       <div class="qr" id="qrShopHolder"></div>
       <div class="t">扫码进店</div>
       <div class="u">16688.com.cn 搜索 <b>plus小店</b><br>16688.com.cn/shop/S382939</div>
     </div>
-    <div id="disclaimer">本视频为流程演示：付款为示意画面，充值页面使用演示数据，实际以页面和使用说明为准 · 请遵守相关服务条款合规使用</div>
+    <div id="disclaimer">本视频为流程演示：订单页为示意画面，充值页面使用演示数据，实际以页面和使用说明为准 · 请遵守相关服务条款合规使用</div>
   </div>
 
   <!-- ============ HUD ============ -->
@@ -213,11 +124,11 @@
     <div id="confettiBox"></div>
     <svg class="cursor" id="uCursor" viewBox="0 0 30 40" style="width:42px;height:56px"><path d="M3 3 L3 33 L10.5 26 L15.5 37.5 L20.5 35.3 L15.6 24 L26 24 Z" fill="#111" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>
     <div class="ripple" id="uRipple" style="width:80px;height:80px;margin:-40px 0 0 -40px"></div>
-    <div id="step"><span class="k" id="stepK">STEP 1</span><span class="l" id="stepL">店铺下单 · 选择商品</span></div>
+    <div id="step"><span class="k" id="stepK">STEP 1</span><span class="l" id="stepL">复制卡密</span></div>
     <div id="prog">
-      <div class="pn" id="pn_0"><span class="c">1</span>店铺下单</div><span class="pl"></span>
-      <div class="pn" id="pn_1"><span class="c">2</span>秒收卡密</div><span class="pl"></span>
-      <div class="pn" id="pn_2"><span class="c">3</span>卡密充值</div>
+      <div class="pn" id="pn_0"><span class="c">1</span>复制卡密</div><span class="pl"></span>
+      <div class="pn" id="pn_1"><span class="c">2</span>填写信息</div><span class="pl"></span>
+      <div class="pn" id="pn_2"><span class="c">3</span>提交充值</div>
     </div>
     <div id="demoTag">示意画面</div>
     <div id="speedTag">⏩ 已加速播放 · 实际预计 3 分钟内完成</div>

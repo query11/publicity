@@ -1,4 +1,5 @@
 // Capture the self-service recharge site (chong.cccard.uk) in every state of the flow.
+// "GPT" wording is replaced by "Plus" (or removed) before every screenshot.
 // All /api/ calls are answered locally with demo data (page.route) — no CDK, session or
 // any other data is ever sent to the site's backend. Amounts (plan list price) are blurred.
 //   node tools/capture_recharge.js
@@ -29,6 +30,27 @@ function mock(url, method) {
   if (/\/challenge/.test(p)) return { challenge: null };
   if (/^\/recharge\/jobs\//.test(p)) return { job_id: 'job-demo-0001', status: jobStatus, plan: 'plus', email: EMAIL, account_email: EMAIL, created_at: '2026-11-07T06:30:00Z', updated_at: '2026-11-07T06:31:00Z', succeeded_at: jobStatus === 'succeeded' ? '2026-11-07T06:32:00Z' : null };
   return { ok: true };
+}
+
+// Show "Plus" only: drop every "GPT" wording (edited in place so the page keeps updating).
+function dropGpt() {
+  const rules = [
+    [/Chat\s*GPT\s*会员自助充值/g, 'Plus 会员自助充值'],
+    [/Chat\s*GPT\s+Plus/gi, 'Plus'],
+    [/Chat\s*GPT\s+Free/gi, 'Free'],
+    [/登录您的\s*Chat\s*GPT\s*账号/g, '登录您的账号'],
+    [/登录\s*Chat\s*GPT/g, '登录账号'],
+    [/Chat\s*GPT\s*/gi, ''],
+    [/\bGPT\b\s*/g, ''],
+  ];
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) {
+    const n = walker.currentNode;
+    if (!/gpt/i.test(n.nodeValue)) continue;
+    let v = n.nodeValue;
+    for (const [re, to] of rules) v = v.replace(re, to);
+    n.nodeValue = v;
+  }
 }
 
 function maskAmounts() {
@@ -80,7 +102,7 @@ const box = async (page, sel) => { const b = await page.locator(sel).first().bou
     if (/challenges\.cloudflare\.com|google-analytics|googletagmanager/.test(req.url())) return route.abort();
     return route.continue();
   });
-  const shot = async (name) => { await page.evaluate(maskAmounts); await page.waitForTimeout(150); await page.screenshot({ path: path.join(OUT, name + '.png') }); console.log('shot', name); };
+  const shot = async (name) => { await page.evaluate(dropGpt); await page.evaluate(maskAmounts); const left = await page.evaluate(() => /gpt/i.test(document.body.innerText)); if (left) throw new Error('GPT text still visible in ' + name); await page.waitForTimeout(150); await page.screenshot({ path: path.join(OUT, name + '.png') }); console.log('shot', name); };
   const text = () => page.evaluate(() => document.body.innerText.replace(/\n+/g, ' | ').slice(0, 900));
   const geo = {};
 

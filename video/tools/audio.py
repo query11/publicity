@@ -132,7 +132,12 @@ def riser(dur):
 
 
 # ---------------------------------------------------------------- music
-def make_music(D):
+def make_music(D, cues=None):
+    cues = cues or {}
+    intro_end = cues.get('introEnd', 5.6)
+    build_start = cues.get('buildStart', D * 0.7)
+    drop = cues.get('drop', build_start + 2.6)
+    end_start = cues.get('endStart', D - 3.5)
     bpm = 104
     beat = 60 / bpm
     bar = 4 * beat
@@ -149,11 +154,11 @@ def make_music(D):
     kick_s, clap_s, hat_s, hato_s = kick(), clap(), hat(), hat(True)
 
     def section(t):
-        if t < 5.6:
+        if t < intro_end:
             return 'intro'
-        if t >= 89.5:
+        if t >= end_start:
             return 'end'
-        if 66.0 <= t < 68.6:
+        if build_start <= t < drop:
             return 'build'
         return 'groove'
 
@@ -182,11 +187,11 @@ def make_music(D):
                     add(drum_b, tt + beat / 4, hat_s, 0.4)
                     add(drum_b, tt + 3 * beat / 4, hat_s, 0.4)
             elif sec == 'end':
-                add(bass_b, tt, bass_note(midi(roots[b % 4]), beat * 0.9), 0.45 * max(0, 1 - (tt - 89.5) / 3))
-    add(drum_b, 66.0, riser(2.65), 1.0)
-    add(drum_b, 68.7, crash(), 0.9)
-    add(drum_b, 5.65, crash(), 0.6)
-    add(drum_b, 3.2, riser(0.45), 0.6)
+                add(bass_b, tt, bass_note(midi(roots[b % 4]), beat * 0.9), 0.45 * max(0, 1 - (tt - end_start) / 3))
+    add(drum_b, build_start, riser(max(0.5, drop - build_start)), 1.0)
+    add(drum_b, drop, crash(), 0.9)
+    add(drum_b, intro_end + 0.05, crash(), 0.6)
+    add(drum_b, max(0, intro_end - 0.5), riser(0.45), 0.6)
 
     # sidechain duck from the kick grid
     duck = np.ones(out.shape[1])
@@ -202,7 +207,7 @@ def make_music(D):
     bass_b *= duck
     # intro: pad/lead filtered & quieter
     t = np.arange(out.shape[1]) / SR
-    intro_gain = np.clip((t - 0.0) / 1.0, 0, 1) * np.where(t < 5.6, 0.75, 1.0)
+    intro_gain = np.clip((t - 0.0) / 1.0, 0, 1) * np.where(t < intro_end, 0.75, 1.0)
     mix_mono_pad = pad_b * 0.5 * intro_gain
     lead = lead_b * 0.32 * intro_gain
     # simple stereo: pad wide (delay), lead ping-pong-ish
@@ -303,7 +308,7 @@ def write_wav(path, stereo):
 def main():
     meta = json.load(open(sys.argv[1], encoding='utf-8'))
     D = float(meta['duration'])
-    music = make_music(D)
+    music = make_music(D, meta.get('music'))
     music *= 0.1 / (np.sqrt(np.mean(music ** 2)) + 1e-9)  # normalise music RMS to ~0.1
     fx = np.zeros(music.shape[1])
     cache = {}

@@ -1,11 +1,11 @@
-/* plus小店 充值流程演示 — deterministic timeline.
+/* plus小店 付款后充值流程 — deterministic timeline.
  * window.seek(t) renders the frame at time t (seconds). window.STAGE_READY resolves once fonts/images are ready.
- * Open index.html?play in a browser to preview in real time, or index.html?t=12.5 to inspect one frame.
- * No monetary amount appears anywhere: the real screenshots are captured with prices blurred.
+ * Open index.html?play in a browser to preview in real time, or index.html?t=20 to inspect one frame.
+ * No monetary amount and no "GPT" wording appear anywhere (the captures are sanitised, see tools/capture_recharge.js).
  */
 (() => {
   const FPS = 30;
-  const DURATION = 93;
+  const DURATION = 49;
   const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
   const lerp = (a, b, p) => a + (b - a) * p;
   const E = {
@@ -38,126 +38,92 @@
   const P = (x, y) => [SX + x, SY + y];
   const NEUTRAL = [960, 570, 1];
   const CAM = [
-    // 16688 shop
-    [11.0, NEUTRAL], [13.2, NEUTRAL],
-    [14.6, [...P(330, 190), 1.55]], [16.0, [...P(330, 190), 1.55]],
-    [17.2, [...P(830, 470), 1.4]], [19.9, [...P(830, 470), 1.4]],
-    [20.8, [...P(720, 450), 1.0]], [22.2, [...P(720, 450), 1.0]],
-    [23.2, [...P(720, 362), 1.7]], [29.6, [...P(720, 362), 1.7]],
-    [30.6, [...P(720, 600), 1.7]], [33.8, [...P(720, 600), 1.7]],
-    [34.5, [...P(720, 740), 1.6]], [37.0, [...P(720, 740), 1.6]],
-    [37.7, [...P(860, 790), 1.75]], [38.6, [...P(860, 790), 1.75]],
-    [40.3, [...P(946, 818), 2.6], 'in'],
     // self-service recharge site
-    [40.31, NEUTRAL, 'lin'], [57.6, NEUTRAL],
-    [58.3, [...P(487, 300), 1.6]], [60.3, [...P(487, 300), 1.6]],
-    [61.1, [...P(1090, 400), 1.5]], [63.0, [...P(1090, 400), 1.5]],
-    [63.8, [...P(487, 470), 1.5]], [66.0, [...P(487, 470), 1.5]],
-    [66.7, [...P(800, 560), 1.2]], [67.4, [...P(800, 560), 1.2]],
-    [67.9, [...P(720, 450), 1.35]], [69.2, [...P(720, 450), 1.35]],
-    [69.9, [...P(1088, 700), 1.5]], [76.55, [...P(1088, 700), 1.5]],
+    [12.0, NEUTRAL], [13.2, NEUTRAL],
+    [13.9, [...P(487, 300), 1.6]], [15.9, [...P(487, 300), 1.6]],
+    [16.7, [...P(1090, 400), 1.5]], [18.6, [...P(1090, 400), 1.5]],
+    [19.4, [...P(487, 470), 1.5]], [21.6, [...P(487, 470), 1.5]],
+    [22.3, [...P(800, 560), 1.2]], [23.0, [...P(800, 560), 1.2]],
+    [23.5, [...P(720, 450), 1.35]], [24.8, [...P(720, 450), 1.35]],
+    [25.5, [...P(1088, 700), 1.5]], [32.15, [...P(1088, 700), 1.5]],
     // 16688 order query
-    [76.56, NEUTRAL, 'lin'], [78.0, NEUTRAL],
-    [78.8, [...P(720, 343), 1.45]], [86.0, [...P(720, 343), 1.45]],
+    [32.16, NEUTRAL, 'lin'], [33.6, NEUTRAL],
+    [34.4, [...P(720, 343), 1.45]], [42.0, [...P(720, 343), 1.45]],
   ];
   // screen timeline: [start, image id, crossfade]; the latest started entry is shown on top of the previous one
   const SCREENS = [
-    [0, 'sh_shop', 0], [17.1, 'sh_hover', 0.12], [20.0, 'sh_modal', 0.28], [31.0, 'sh_focus', 0.06],
-    [34.75, 'sh_filled', 0.06], [37.6, 'sh_confirm', 0.1],
-    [50.0, 'rc00', 0], [58.5, 'rc01', 0.06], [58.85, 'rc02', 0.06], [59.6, 'rc03', 0.15], [62.0, 'rc04', 0.1],
-    [63.2, 'rc03', 0.1], [64.0, 'rc05', 0.06], [64.35, 'rc06', 0.06], [65.2, 'rc07', 0.15], [66.9, 'rc08', 0.1],
-    [67.5, 'rc09', 0.25], [68.5, 'rc10', 0.1], [69.25, 'rc11', 0.25], [71.0, 'rc12', 0.2], [73.0, 'rc13', 0.25],
-    [76.55, 'sh_oq', 0], [78.9, 'sh_oqf', 0.06],
+    [0, 'rc00', 0], [14.1, 'rc01', 0.06], [14.45, 'rc02', 0.06], [15.2, 'rc03', 0.15], [17.6, 'rc04', 0.1],
+    [18.8, 'rc03', 0.1], [19.6, 'rc05', 0.06], [19.95, 'rc06', 0.06], [20.8, 'rc07', 0.15], [22.5, 'rc08', 0.1],
+    [23.1, 'rc09', 0.25], [24.1, 'rc10', 0.1], [24.85, 'rc11', 0.25], [26.6, 'rc12', 0.2], [28.6, 'rc13', 0.25],
+    [32.15, 'sh_oq', 0], [34.5, 'sh_oqf', 0.06],
   ];
-  const URLS = [[0, 'www.16688.com.cn/shop/S382939'], [50, 'chong.cccard.uk'], [76.55, 'www.16688.com.cn/order']];
-  const DESC_SCROLL = [[23.5, 0], [25.0, 205], [26.7, 205], [28.7, 1625]];
-  const TYPE_T0 = 31.35, TYPE_DT = 0.12, TYPE_N = 16;
-  const OQ_T0 = 79.15, OQ_DT = 0.1, OQ_HOVER = 81.3;
+  const URLS = [[0, 'chong.cccard.uk'], [32.15, 'www.16688.com.cn/order']];
+  const OQ_T0 = 34.75, OQ_DT = 0.1, OQ_N = 16, OQ_HOVER = 36.9;
   const WCUR = [
-    [14.6, [1250, 880]], [17.0, [545, 440]], [19.6, [548, 446]], [20.6, [640, 420]], [23.0, [760, 400]], [29.0, [760, 400]],
-    [30.8, [840, 612]], [31.5, [905, 652]], [33.6, [905, 652]], [34.6, [528, 742]], [35.6, [560, 772]], [37.4, [946, 819]], [41, [946, 819]],
-    [57.6, [1000, 830]], [58.4, [330, 291]], [59.0, [400, 335]], [61.2, [400, 335]], [62.0, [965, 444]], [62.9, [965, 444]],
-    [63.95, [330, 430]], [64.5, [440, 470]], [66.2, [440, 470]], [66.9, [779, 731]], [67.6, [779, 731]], [68.45, [842, 629]],
-    [69.1, [842, 629]], [69.8, [990, 760]], [71, [990, 760]],
-    [76.0, [1150, 640]], [77.8, [1150, 640]], [78.8, [640, 343]], [79.2, [700, 398]], [80.7, [700, 398]], [81.3, [1073, 343]], [86, [1073, 343]],
+    [13.2, [1000, 830]], [14.0, [330, 291]], [14.6, [400, 335]], [16.8, [400, 335]], [17.6, [965, 444]], [18.5, [965, 444]],
+    [19.55, [330, 430]], [20.1, [440, 470]], [21.8, [440, 470]], [22.5, [779, 731]], [23.2, [779, 731]], [24.05, [842, 629]],
+    [24.7, [842, 629]], [25.4, [990, 760]], [26.6, [990, 760]],
+    [31.6, [1150, 640]], [33.4, [1150, 640]], [34.4, [640, 343]], [34.8, [700, 398]], [36.3, [700, 398]], [36.9, [1073, 343]], [42, [1073, 343]],
   ];
-  const WCLICKS = [19.8, 31.0, 34.75, 38.4, 58.5, 64.0, 67.3, 69.0, 78.85];
-  const WCUR_VIS = [[14.6, 40.2], [57.6, 70.2], [77.8, 84.9]];
-  const WORLD_VIS = [[11.6, 40.3], [56.6, 76.55], [76.6, 84.9]];
-  const HL = [['hlCard', 17.4, 19.7], ['hlPay', 35.0, 36.9], ['hlGuide', 61.1, 63.1], ['hlDone', 73.3, 76.1], ['hlOq', 81.4, 84.3]];
+  const WCLICKS = [14.1, 19.6, 22.9, 24.6, 34.45];
+  const WCUR_VIS = [[13.2, 25.8], [33.4, 40.5]];
+  const WORLD_VIS = [[12.2, 32.15], [32.2, 40.5]];
+  const HL = [['hlGuide', 16.7, 18.7], ['hlDone', 28.9, 31.7], ['hlOq', 37.0, 39.9]];
 
   /* ---------------- HUD ---------------- */
   const STEPS = [
-    [12.2, 22.4, 'STEP 1', '店铺下单 · 选择商品', 0],
-    [22.4, 40.0, 'STEP 1', '店铺下单 · 填写信息', 0],
-    [40.0, 49.0, 'STEP 1', '店铺下单 · 扫码付款', 0],
-    [49.0, 57.0, 'STEP 2', '秒收卡密', 1],
-    [57.0, 76.6, 'STEP 3', '卡密充值', 2],
-    [76.6, 84.6, '小贴士', '订单查询 · 找回卡密', 3],
+    [4.6, 12.4, 'STEP 1', '复制卡密', 0],
+    [12.4, 22.3, 'STEP 2', '填写卡密和账号凭证', 1],
+    [22.3, 32.2, 'STEP 3', '提交充值', 2],
+    [32.2, 40.0, '小贴士', '订单查询 · 找回卡密', 3],
   ];
+  const HUD_VIS = [4.6, 40.0];
   const CAPS = [
-    [6.6, 11.4, '今天用 <b>plus小店</b>，完整演示一遍充值流程'],
-    [12.9, 16.4, '打开 16688，进入 <b>plus小店</b> 店铺首页'],
-    [16.6, 21.8, '选择「<b>官网正价直充 GPT Plus 30天</b>」'],
-    [22.6, 26.0, '详情写明：<b>官方直充</b>、一卡一充、可开国内发票'],
-    [26.2, 29.9, '下单前看一眼质保：充值成功后<b>质保 30 天</b>'],
-    [30.2, 34.0, '填写联系邮箱，<b>方便之后查单、找回卡密</b>'],
-    [34.3, 37.0, '选择<b>支付宝或微信</b>支付，核对订单信息'],
-    [37.2, 39.8, '点击「<b>确认订单</b>」去付款'],
-    [40.8, 44.8, '手机扫码付款，<b>平台担保交易</b>'],
-    [45.2, 48.8, '付款成功，<b>系统自动发货</b>，不用等客服'],
-    [49.6, 53.0, '订单页<b>秒发卡密</b>，一键复制'],
-    [53.3, 56.6, '按使用说明，打开<b>自助充值站</b>'],
-    [57.4, 60.3, '粘贴<b>会员卡密 (CDK)</b>，自动识别套餐'],
-    [60.5, 63.5, '按右侧指南：登录 ChatGPT，打开 session，<b>复制完整凭证</b>'],
-    [63.7, 66.5, '粘贴<b>账号凭证 (Session)</b>，自动校验账号'],
-    [66.7, 69.1, '核对账号和套餐，点击「<b>开始充值</b>」并确认提交'],
-    [69.3, 72.8, '任务自动排队处理，<b>预计 3 分钟内完成</b>'],
-    [73.1, 76.3, '充值成功！登录 ChatGPT 即可查看 <b>Plus 会员</b>'],
-    [77.9, 84.3, '卡密忘了保存？「<b>订单查询</b>」输入下单邮箱即可找回'],
+    [5.0, 8.0, '付款后自动发货，订单页<b>直接复制卡密</b>'],
+    [8.2, 12.0, '按使用说明，打开<b>自助充值站</b>'],
+    [12.8, 15.9, '粘贴<b>会员卡密 (CDK)</b>，自动识别套餐'],
+    [16.1, 19.1, '按右侧指南：登录账号，打开 session，<b>复制完整凭证</b>'],
+    [19.3, 22.1, '粘贴<b>账号凭证 (Session)</b>，自动校验账号'],
+    [22.3, 24.7, '核对账号和套餐，点击「<b>开始充值</b>」并确认提交'],
+    [24.9, 28.4, '任务自动排队处理，<b>预计 3 分钟内完成</b>'],
+    [28.7, 31.8, '充值成功！重新登录账号即可看到 <b>Plus 会员</b>'],
+    [33.5, 39.8, '卡密忘了保存？在 16688「<b>订单查询</b>」输入下单邮箱即可找回'],
   ];
-  const WIPES = [5.7, 11.45, 39.75, 56.35, 76.3, 84.25];
-  const TAGS = [[40.3, 56.8, '示意画面'], [57.0, 76.4, '演示数据']];
-  const SUCCESS_T = 73.05;
+  const WIPES = [4.3, 12.0, 31.9, 39.65];
+  const TAGS = [[4.8, 12.3, '示意画面'], [12.6, 31.9, '演示数据']];
+  const SPEED_VIS = [25.0, 31.4];
+  const SUCCESS_T = 28.65;
+  const MUSIC = { introEnd: 4.3, buildStart: 26.0, drop: SUCCESS_T, endStart: 45.6 };
 
   /* ---------------- illustrated scenes ---------------- */
-  const SCENES = { 's-hook': [-1, 6.05], 's-intro': [5.85, 12.0], 's-pay': [39.9, 49.2], 's-order': [48.9, 57.0], 's-outro': [84.4, 99] };
+  const SCENES = { 's-hook': [-1, 4.55], 's-order': [4.5, 12.6], 's-outro': [39.9, 99] };
   const KEY = 'PLUS-7XK2-M9QF-4TBA';
-  const KEY_T0 = 50.0;
-  const ORDER_CLICK = 52.55;
+  const KEY_T0 = 5.6;
+  const ORDER_CLICK = 8.1;
+  const OUT0 = 40.2; // outro start
 
   /* ---------------- sound effects (exported for the audio mixer) ---------------- */
   const SFX = [];
   WIPES.forEach(t => SFX.push({ t: t + 0.05, type: 'whoosh' }));
-  [1.2, 1.65, 2.1].forEach(t => SFX.push({ t, type: 'pop' }));
-  SFX.push({ t: 3.6, type: 'impact' });
-  for (let i = 0; i < 6; i++) SFX.push({ t: 7.0 + i * 0.28, type: 'pop', gain: 0.55 });
-  WCLICKS.forEach(t => SFX.push({ t, type: 'click' }));
-  for (let i = 0; i < TYPE_N; i++) SFX.push({ t: TYPE_T0 + i * TYPE_DT, type: 'key', seed: i });
-  for (let i = 0; i < TYPE_N; i++) SFX.push({ t: OQ_T0 + i * OQ_DT, type: 'key', seed: 40 + i });
-  for (let t = 23.55; t < 25.0; t += 0.11) SFX.push({ t, type: 'wheel' });
-  for (let t = 26.75; t < 28.7; t += 0.09) SFX.push({ t, type: 'wheel' });
-  SFX.push({ t: 43.55, type: 'beep' });
-  SFX.push({ t: 44.4, type: 'click' });
-  SFX.push({ t: 45.05, type: 'ding' });
+  SFX.push({ t: 0.2, type: 'impact', gain: 0.8 });
+  [1.3, 1.65, 2.0].forEach(t => SFX.push({ t, type: 'pop' }));
   SFX.push({ t: ORDER_CLICK, type: 'click' });
-  SFX.push({ t: 52.65, type: 'pop', gain: 0.6 });
-  SFX.push({ t: 53.5, type: 'notify' });
-  [58.85, 64.35].forEach(t => SFX.push({ t, type: 'paste' }));
-  [59.6, 65.2].forEach(t => SFX.push({ t, type: 'pop' }));
-  [69.25, 71.0].forEach(t => SFX.push({ t, type: 'tick' }));
+  SFX.push({ t: ORDER_CLICK + 0.1, type: 'pop', gain: 0.6 });
+  SFX.push({ t: 9.2, type: 'notify' });
+  WCLICKS.forEach(t => SFX.push({ t, type: 'click' }));
+  [14.45, 19.95].forEach(t => SFX.push({ t, type: 'paste' }));
+  [15.2, 20.8].forEach(t => SFX.push({ t, type: 'pop' }));
+  [24.85, 26.6].forEach(t => SFX.push({ t, type: 'tick' }));
   SFX.push({ t: SUCCESS_T, type: 'success' });
-  [85.5, 85.8, 86.1].forEach(t => SFX.push({ t, type: 'pop', gain: 0.7 }));
+  for (let i = 0; i < OQ_N; i++) SFX.push({ t: OQ_T0 + i * OQ_DT, type: 'key', seed: 40 + i });
+  [0, 1, 2].forEach(i => SFX.push({ t: OUT0 + 0.9 + i * 0.3, type: 'pop', gain: 0.7 }));
   SFX.sort((a, b) => a.t - b.t);
 
   /* ---------------- init ---------------- */
   const el = {};
   document.querySelectorAll('[id]').forEach(n => { el[n.id] = n; });
-  for (let i = 1; i <= TYPE_N; i++) { const im = new Image(); im.src = `../assets/type/t${String(i).padStart(2, '0')}.png`; el.typeWin.appendChild(im); }
-  for (let i = 1; i <= TYPE_N; i++) { const im = new Image(); im.src = `../assets/oq/q${String(i).padStart(2, '0')}.png`; el.oqWin.appendChild(im); }
+  for (let i = 1; i <= OQ_N; i++) { const im = new Image(); im.src = `../assets/oq/q${String(i).padStart(2, '0')}.png`; el.oqWin.appendChild(im); }
   { const im = new Image(); im.src = '../assets/oq/q_hover.png'; el.oqWin.appendChild(im); }
-  el.qrPayHolder.innerHTML = window.QR.pay;
-  el.qrMiniHolder.innerHTML = window.QR.pay;
   el.qrShopHolder.innerHTML = window.QR.shop;
   const SHOT_IDS = [...new Set(SCREENS.map(s => s[1]))];
   // confetti (HUD layer), bursting from the success card
@@ -175,12 +141,12 @@
       confetti.push({ d, x0: 1300 + (r() - 0.5) * 200, y0: 430, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, rot: r() * 360, vr: (r() - 0.5) * 900, s: 0.7 + r() * 0.6, delay: r() * 0.15 });
     }
   }
-  const center = (n, rel) => { const a = n.getBoundingClientRect(); const b = rel ? rel.getBoundingClientRect() : { left: 0, top: 0 }; return [a.left - b.left + a.width / 2, a.top - b.top + a.height / 2]; };
-  const G = { copy: center(el.copyBtn), payBtn: center(el.payBtn, el.phoneScr) };
+  const center = n => { const a = n.getBoundingClientRect(); return [a.left + a.width / 2, a.top + a.height / 2]; };
+  const G = { copy: center(el.copyBtn) };
   const add = (a, b) => [a[0] + b[0], a[1] + b[1]];
-  const UCUR = [[51.3, [1560, 1000]], [52.4, G.copy], [53.2, add(G.copy, [60, 70])], [57.0, add(G.copy, [60, 70])]];
+  const UCUR = [[6.9, [1560, 1000]], [7.9, G.copy], [8.7, add(G.copy, [60, 70])], [12.6, add(G.copy, [60, 70])]];
   const UCLICKS = [ORDER_CLICK];
-  const UCUR_VIS = [[51.3, 56.95]];
+  const UCUR_VIS = [[6.9, 12.55]];
   // preload all caption glyphs
   const glyphs = document.createElement('div');
   glyphs.style.cssText = 'position:absolute;left:-9999px;top:0;opacity:0;font-weight:700';
@@ -204,13 +170,14 @@
   const cursorAt = (keys, t) => track(t, keys);
   function inWins(t, wins, d = 0.2) { let v = 0; for (const [a, b] of wins) v = Math.max(v, vis(t, a, b, d)); return v; }
   function clickPulse(t, clicks) { let s = 1, rip = null; for (const c of clicks) { const dt = t - c; if (dt >= -0.08 && dt < 0.14) s = Math.min(s, 0.82); if (dt >= 0 && dt < 0.5) rip = { c, p: dt / 0.5 }; } return { s, rip }; }
+  const popIn = (n, t, a, from = 0.6) => { op(n, clamp((t - a) / 0.15)); n.style.transform = `scale(${from + (1 - from) * seg(t, a, a + 0.4, 'back')})`; };
 
   function seek(t) {
     /* background */
     css(el.glow1, { transform: `translate(${-200 + 260 * Math.sin(t * 0.17)}px, ${-260 + 160 * Math.cos(t * 0.13)}px)` });
     css(el.glow2, { transform: `translate(${1150 + 220 * Math.cos(t * 0.11)}px, ${380 + 180 * Math.sin(t * 0.15)}px)` });
 
-    /* world (real browser screenshots) */
+    /* world (real browser pages) */
     const wv = inWins(t, WORLD_VIS, 0.45);
     op(el.world, wv);
     if (wv > 0) {
@@ -238,21 +205,11 @@
       let url = URLS[0][1];
       for (const [a, u] of URLS) if (t >= a) url = u;
       if (url !== lastUrl) { el.urlText.textContent = url; lastUrl = url; }
-      // description scroll overlay (order modal)
-      const dOp = t >= 20.0 && t < 41 ? clamp((t - 20.0) / 0.28) : 0;
-      op(el.descWin, dOp);
-      el.descWin.style.zIndex = 3;
-      if (dOp > 0) el.descImg.style.transform = `translateY(${-track(t, DESC_SCROLL)}px)`;
-      // typing overlay (order form)
-      const tOn = t >= TYPE_T0 && t < 34.75;
-      op(el.typeWin, tOn ? 1 : 0);
-      el.typeWin.style.zIndex = 3;
-      if (tOn) { const k = clamp(Math.floor((t - TYPE_T0) / TYPE_DT), 0, TYPE_N - 1); Array.from(el.typeWin.children).forEach((im, i) => { im.style.opacity = i === k ? 1 : 0; }); }
       // typing overlay (order query)
       const qOn = t >= OQ_T0;
       op(el.oqWin, qOn ? 1 : 0);
       el.oqWin.style.zIndex = 3;
-      if (qOn) { const k = t >= OQ_HOVER ? TYPE_N : clamp(Math.floor((t - OQ_T0) / OQ_DT), 0, TYPE_N - 1); Array.from(el.oqWin.children).forEach((im, i) => { im.style.opacity = i === k ? 1 : 0; }); }
+      if (qOn) { const k = t >= OQ_HOVER ? OQ_N : clamp(Math.floor((t - OQ_T0) / OQ_DT), 0, OQ_N - 1); Array.from(el.oqWin.children).forEach((im, i) => { im.style.opacity = i === k ? 1 : 0; }); }
       // highlight boxes
       for (const [id, a, b] of HL) { const n = el[id]; op(n, vis(t, a, b, 0.25)); n.style.zIndex = 4; n.style.transform = `scale(${1 + 0.06 * (1 - seg(t, a, a + 0.35, 'out'))})`; }
       // cursor + ripple
@@ -273,55 +230,16 @@
     for (const id in SCENES) { const [a, b] = SCENES[id]; op(el[id], vis(t, a, b, 0.35)); }
 
     // hook
-    if (t < 6.2) {
-      const tin = seg(t, 0.15, 0.8, 'out'), tout = seg(t, 3.3, 3.7, 'in');
-      op(el.hookTitle, tin * (1 - tout));
-      el.hookTitle.style.transform = `translateY(${(1 - tin) * 50 - tout * 30}px) scale(${0.96 + 0.04 * tin - 0.04 * tout})`;
-      [0, 1, 2].forEach(i => {
-        const p = seg(t, 1.2 + i * 0.45, 1.6 + i * 0.45, 'back');
-        op(el['pn' + i], clamp((t - 1.2 - i * 0.45) / 0.15) * (1 - tout));
-        el['pn' + i].style.transform = `translateY(${tout * 40}px) scale(${0.6 + 0.4 * p})`;
-      });
-      const ain = seg(t, 3.6, 4.15, 'out');
-      op(el.hookAns, ain);
-      el.hookAns.style.transform = `scale(${1.25 - 0.25 * ain})`;
+    if (t < 4.7) {
+      const a = seg(t, 0.15, 0.8, 'out'), b = seg(t, 0.6, 1.2, 'out');
+      op(el.hookTitle, a); el.hookTitle.style.transform = `translateY(${(1 - a) * 50}px) scale(${0.96 + 0.04 * a})`;
+      op(el.hookSub, b); el.hookSub.style.transform = `translateY(${(1 - b) * 30}px)`;
+      [0, 1, 2].forEach(i => popIn(el['hs' + i], t, 1.3 + i * 0.35));
+      [0, 1].forEach(i => op(el['ha' + i], clamp((t - 1.5 - i * 0.35) / 0.2)));
     }
-    // intro
-    if (t > 5.5 && t < 12.3) {
-      const cin = seg(t, 5.9, 6.6, 'out'), cout = seg(t, 11.45, 11.95, 'in');
-      el.introCard.style.transform = `translateY(${(1 - cin) * 70}px) scale(${0.94 + 0.06 * cin - 0.06 * cout})`;
-      Array.from(el.introBadges.children).forEach((b, i) => {
-        const p = seg(t, 7.0 + i * 0.28, 7.35 + i * 0.28, 'back');
-        op(b, clamp((t - 7.0 - i * 0.28) / 0.12));
-        b.style.transform = `scale(${0.7 + 0.3 * p})`;
-      });
-      el.statN.textContent = Math.round(16000 * seg(t, 6.6, 8.0, 'out')) + '+';
-    }
-    // pay
-    if (t > 39.5 && t < 49.5) {
-      const cin = seg(t, 40.0, 40.6, 'out');
-      el.payCard.style.transform = `translateY(${(1 - cin) * 60}px)`;
-      const pin = seg(t, 40.9, 41.6, 'out');
-      el.phone.style.transform = `translateX(${(1 - pin) * 300}px) rotate(${(1 - pin) * 6}deg)`;
-      op(el.phone, clamp((t - 40.9) / 0.25));
-      const secs = Math.max(0, 899 - Math.floor(Math.max(0, t - 40)));
-      el.payTimer.textContent = `${String(Math.floor(secs / 60)).padStart(2, '0')}:${String(secs % 60).padStart(2, '0')}`;
-      op(el.psScan, t >= 41.0 && t < 43.7 ? 1 : 0);
-      el.scanLine.style.top = `${236 + 228 * (0.5 - 0.5 * Math.cos((2 * Math.PI * (t - 41)) / 1.4))}px`;
-      op(el.psPay, t >= 43.6 && t < 45.1 ? clamp((t - 43.6) / 0.15) : 0);
-      el.paySheet.style.transform = `translateY(${(1 - seg(t, 43.6, 44.0, 'out')) * 520}px)`;
-      const tap = t - 44.4;
-      if (tap >= 0 && tap < 0.45) { css(el.tapDot, { left: G.payBtn[0] + 'px', top: G.payBtn[1] + 'px', transform: `scale(${0.5 + 0.8 * E.out(tap / 0.45)})` }); op(el.tapDot, 1 - tap / 0.45); } else op(el.tapDot, 0);
-      el.payBtn.style.transform = `scale(${tap >= 0 && tap < 0.15 ? 0.96 : 1})`;
-      op(el.psOk, t >= 45.0 ? clamp((t - 45.0) / 0.12) : 0);
-      el.psOk.firstElementChild.style.transform = `scale(${0.4 + 0.6 * seg(t, 45.0, 45.45, 'back')})`;
-      op(el.payDone, clamp((t - 45.2) / 0.25));
-      el.payDone.firstElementChild.style.transform = `scale(${0.4 + 0.6 * seg(t, 45.2, 45.7, 'back')})`;
-      el.paySpin.style.transform = `rotate(${t * 540}deg)`;
-    }
-    // order delivered
-    if (t > 48.5 && t < 57.3) {
-      const cin = seg(t, 49.0, 49.6, 'out');
+    // STEP 1: order delivered
+    if (t > 4.2 && t < 12.9) {
+      const cin = seg(t, 4.7, 5.3, 'out');
       el.orderCard.style.transform = `translateY(${(1 - cin) * 60}px) scale(${0.96 + 0.04 * cin})`;
       let code = '';
       if (t < KEY_T0) code = '••••-••••-••••-••••';
@@ -335,23 +253,23 @@
       el.copyTxt.textContent = copied ? '已复制' : '复制';
       el.copyBtn.style.background = copied ? '#16b364' : '';
       el.copyBtn.style.transform = `scale(${t >= ORDER_CLICK - 0.05 && t < ORDER_CLICK + 0.1 ? 0.95 : 1})`;
-      op(el.copyToast, vis(t, 52.7, 54.4, 0.2));
-      el.copyToast.style.transform = `translateX(-50%) translateY(${(1 - seg(t, 52.7, 53.0, 'out')) * -20}px)`;
-      const mt = seg(t, 53.5, 54.0, 'out');
-      op(el.mailToast, clamp((t - 53.5) / 0.2));
+      op(el.copyToast, vis(t, ORDER_CLICK + 0.15, ORDER_CLICK + 1.8, 0.2));
+      el.copyToast.style.transform = `translateX(-50%) translateY(${(1 - seg(t, ORDER_CLICK + 0.15, ORDER_CLICK + 0.45, 'out')) * -20}px)`;
+      const mt = seg(t, 9.2, 9.7, 'out');
+      op(el.mailToast, clamp((t - 9.2) / 0.2));
       el.mailToast.style.transform = `translateX(${(1 - mt) * 640}px)`;
     }
     // outro
-    if (t > 84.0) {
-      const a = seg(t, 84.6, 85.2, 'out'), b = seg(t, 84.9, 85.5, 'out');
+    if (t > OUT0 - 0.6) {
+      const a = seg(t, OUT0, OUT0 + 0.6, 'out'), b = seg(t, OUT0 + 0.3, OUT0 + 0.9, 'out');
       op(el.outTitle, a); el.outTitle.style.transform = `translateY(${(1 - a) * 40}px)`;
       op(el.outSub, b); el.outSub.style.transform = `translateY(${(1 - b) * 40}px)`;
-      [0, 1, 2].forEach(i => { const s = 85.5 + i * 0.3; op(el['os' + i], clamp((t - s) / 0.2)); el['os' + i].style.transform = `scale(${0.7 + 0.3 * seg(t, s, s + 0.35, 'back')})`; });
-      [0, 1].forEach(i => op(el['oa' + i], clamp((t - 85.65 - i * 0.3) / 0.2)));
-      Array.from(el.outChips.children).forEach((c, i) => { const s = 86.5 + i * 0.15; op(c, clamp((t - s) / 0.2)); c.style.transform = `translateY(${(1 - seg(t, s, s + 0.3, 'out')) * 20}px)`; });
-      const q = seg(t, 85.2, 85.9, 'out');
+      [0, 1, 2].forEach(i => popIn(el['os' + i], t, OUT0 + 0.9 + i * 0.3, 0.7));
+      [0, 1].forEach(i => op(el['oa' + i], clamp((t - OUT0 - 1.05 - i * 0.3) / 0.2)));
+      Array.from(el.outChips.children).forEach((c, i) => { const s = OUT0 + 1.9 + i * 0.15; op(c, clamp((t - s) / 0.2)); c.style.transform = `translateY(${(1 - seg(t, s, s + 0.3, 'out')) * 20}px)`; });
+      const q = seg(t, OUT0 + 0.6, OUT0 + 1.3, 'out');
       op(el.qrCard, q); el.qrCard.style.transform = `translateX(${(1 - q) * 90}px)`;
-      op(el.disclaimer, clamp((t - 87.0) / 0.5));
+      op(el.disclaimer, clamp((t - OUT0 - 2.4) / 0.5));
     }
 
     /* confetti on recharge success */
@@ -376,7 +294,7 @@
     /* HUD: step + progress */
     let si = -1;
     for (let i = 0; i < STEPS.length; i++) if (t >= STEPS[i][0] && t < STEPS[i][1]) si = i;
-    const hv = vis(t, 12.2, 84.6, 0.35);
+    const hv = vis(t, HUD_VIS[0], HUD_VIS[1], 0.35);
     op(el.step, hv); op(el.prog, hv);
     if (si >= 0 && si !== lastStep) {
       el.stepK.textContent = STEPS[si][2]; el.stepL.textContent = STEPS[si][3];
@@ -388,14 +306,14 @@
     let tv = 0;
     for (const [a, b, txt] of TAGS) { const v = vis(t, a, b, 0.3); if (v > 0) { tv = v; if (txt !== lastTag) { el.demoTag.textContent = txt; lastTag = txt; } } }
     op(el.demoTag, tv);
-    op(el.speedTag, vis(t, 69.4, 75.8, 0.3));
+    op(el.speedTag, vis(t, SPEED_VIS[0], SPEED_VIS[1], 0.3));
 
     /* captions */
-    let ci2 = -1;
-    for (let i = 0; i < CAPS.length; i++) if (t >= CAPS[i][0] && t < CAPS[i][1]) ci2 = i;
-    if (ci2 !== lastCap) { if (ci2 >= 0) el.cap.innerHTML = CAPS[ci2][2]; lastCap = ci2; }
-    if (ci2 >= 0) {
-      const [a, b] = CAPS[ci2];
+    let k2 = -1;
+    for (let i = 0; i < CAPS.length; i++) if (t >= CAPS[i][0] && t < CAPS[i][1]) k2 = i;
+    if (k2 !== lastCap) { if (k2 >= 0) el.cap.innerHTML = CAPS[k2][2]; lastCap = k2; }
+    if (k2 >= 0) {
+      const [a, b] = CAPS[k2];
       op(el.cap, vis(t, a, b, 0.22));
       el.cap.style.transform = `translateX(-50%) translateY(${(1 - seg(t, a, a + 0.3, 'out')) * 18}px)`;
     } else op(el.cap, 0);
@@ -404,12 +322,13 @@
     let wp = -1;
     for (const w of WIPES) if (t >= w && t < w + 0.6) wp = (t - w) / 0.6;
     if (wp >= 0) { op(el.wipe, 0.85); el.wipe.style.left = `${lerp(-1300, 2300, E.io(wp))}px`; } else op(el.wipe, 0);
-    op(el.fade, Math.max(seg(t, 92.1, 93.0, 'lin'), 1 - clamp(t / 0.25)));
+    op(el.fade, Math.max(seg(t, DURATION - 0.9, DURATION, 'lin'), 1 - clamp(t / 0.25)));
   }
 
   window.FPS = FPS;
   window.DURATION = DURATION;
   window.SFX = SFX;
+  window.MUSIC = MUSIC;
   window.CAPTIONS = CAPS.map(([a, b, h]) => ({ start: a, end: b, text: h.replace(/<[^>]+>/g, '') }));
   window.seek = seek;
   window.STAGE_READY = ready;

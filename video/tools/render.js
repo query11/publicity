@@ -53,7 +53,7 @@ async function renderRange(browser, f0, f1, fps, out, label) {
     console.log('stills done');
   } else if (mode === 'meta') {
     const page = await openStage(browser);
-    const meta = await page.evaluate(() => ({ fps: window.FPS, duration: window.DURATION, sfx: window.SFX, captions: window.CAPTIONS }));
+    const meta = await page.evaluate(() => ({ fps: window.FPS, duration: window.DURATION, music: window.MUSIC, sfx: window.SFX, captions: window.CAPTIONS }));
     fs.writeFileSync(out, JSON.stringify(meta, null, 1));
     console.log('meta written', meta.sfx.length, 'sfx', meta.captions.length, 'captions');
   } else if (mode === 'video') {
