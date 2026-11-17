@@ -1,4 +1,4 @@
-"""Synthesize background music + timeline sound effects for the promo video.
+"""Synthesize the lo-fi background music + timeline sound effects for the explainer video.
 
 usage: python3 tools/audio.py out/meta.json out/audio.wav
 meta.json comes from `node tools/render.js meta out/meta.json` (duration + SFX cue list).
@@ -68,158 +68,179 @@ def fm_bell(f, dur, idx=2.0, tau=0.35, ratio=2.0):
     return np.sin(2 * np.pi * f * t + mod) * np.exp(-t / tau) * adsr(len(t), 0.002, 0.03)
 
 
-def pluck(f, dur=0.45):
-    t = t_axis(dur)
-    s = np.sin(2 * np.pi * f * t) + 0.35 * np.sin(4 * np.pi * f * t) * np.exp(-t / 0.05) + 0.15 * np.sin(6 * np.pi * f * t) * np.exp(-t / 0.03)
-    return s * np.exp(-t / 0.16) * adsr(len(t), 0.003, 0.05)
+# ---------------------------------------------------------------- lo-fi music
+# Calm lo-fi bed for a talky explainer: 84 BPM swung boom-bap, FM electric piano, sub bass, vinyl crackle.
+# Arrangement follows the stage cues: keys only (muffled) during the hook, drums + open filter from PART 1,
+# soft shaker from PART 2, drums out for the ending and a held I chord at the very end.
+BPM = 84
+BEAT = 60 / BPM
+BAR = 4 * BEAT
+SWING = 0.58  # position of the off-beat 8th inside a beat
+
+# Fmaj9 - Em7 - Dm9 - Cmaj9 (IV - iii - ii - I in C)
+CHORDS = [
+    (41, [57, 60, 64, 67]),  # F  : A3 C4 E4 G4
+    (40, [55, 59, 62, 64]),  # Em7: G3 B3 D4 E4
+    (38, [53, 57, 60, 64]),  # Dm9: F3 A3 C4 E4
+    (36, [52, 55, 59, 62]),  # C  : E3 G3 B3 D4
+]
 
 
-def saw(f, t, phase=0.0):
-    return 2 * ((f * t + phase) % 1.0) - 1
+def add2(buf, start, sig, gain=1.0):
+    """add() for stereo (2, n) signals."""
+    i = int(start * SR)
+    if i >= buf.shape[-1] or i + sig.shape[-1] <= 0:
+        return
+    j = min(buf.shape[-1], i + sig.shape[-1])
+    buf[:, i:j] += gain * sig[:, : j - i]
 
 
-def pad_chord(notes, dur):
-    t = t_axis(dur)
-    s = np.zeros_like(t)
-    for n in notes:
-        f = midi(n)
-        for det in (-0.12, 0.0, 0.12):
-            s += saw(f * 2 ** (det / 12), t, rng.random())
-    s = lp_fast(s, 1400) / (len(notes) * 3)
-    return s * adsr(len(t), 0.35, 0.6)
-
-
-def bass_note(f, dur):
-    t = t_axis(dur)
-    s = np.sin(2 * np.pi * f * t) + 0.25 * np.sin(4 * np.pi * f * t)
-    return s * adsr(len(t), 0.005, 0.06) * (0.55 + 0.45 * np.exp(-t / 0.18))
-
-
-def kick():
-    t = t_axis(0.45)
-    f = 45 + 95 * np.exp(-t / 0.045)
-    ph = 2 * np.pi * np.cumsum(f) / SR
-    return np.sin(ph) * np.exp(-t / 0.16) + 0.25 * rng.standard_normal(len(t)) * np.exp(-t / 0.004)
-
-
-def clap():
-    n = int(0.25 * SR)
-    noise = bp_fast(rng.standard_normal(n), 900, 5000)
+def ep_note(f, dur, vel):
+    """FM electric piano (1:1 ratio, decaying index) with a faint tine, slightly detuned per channel."""
+    n = int((dur + 0.7) * SR)
     t = np.arange(n) / SR
-    e = np.exp(-t / 0.07)
-    for k in (0.0, 0.011, 0.022):
-        e += 0.6 * np.exp(-np.clip(t - k, 0, None) / 0.006) * (t >= k)
-    return noise * e * 0.35
+    idx = (0.9 + 1.1 * vel) * np.exp(-t / 0.32) + 0.12
+    env = (1 - np.exp(-t / 0.004)) * (0.6 * np.exp(-t / 0.8) + 0.4 * np.exp(-t / 3.2))
+    env *= np.where(t < dur, 1.0, np.exp(-(t - dur) / 0.2))
+    out = []
+    for det, ph in ((-0.0023, 0.0), (0.0023, 0.4)):
+        fc = f * (1 + det)
+        s = np.sin(2 * np.pi * fc * t + idx * np.sin(2 * np.pi * fc * t + ph))
+        s += 0.05 * vel * np.exp(-t / 0.05) * np.sin(2 * np.pi * f * 7 * t)
+        out.append(s * env * vel)
+    return np.vstack(out)
 
 
-def hat(open_=False):
-    n = int((0.18 if open_ else 0.06) * SR)
-    noise = hp_fast(rng.standard_normal(n), 7000)
-    return noise * env_exp(n, 0.05 if open_ else 0.012) * 0.5
-
-
-def crash():
-    n = int(2.2 * SR)
-    noise = hp_fast(rng.standard_normal(n), 3500)
-    return noise * env_exp(n, 0.7) * 0.35
-
-
-def riser(dur):
-    n = int(dur * SR)
+def sub_bass(f, dur, vel=1.0):
+    n = int((dur + 0.15) * SR)
     t = np.arange(n) / SR
-    noise = hp_fast(rng.standard_normal(n), 1500)
-    return noise * (t / dur) ** 2.2 * 0.35
+    s = np.sin(2 * np.pi * f * t) + 0.22 * np.sin(4 * np.pi * f * t) + 0.06 * np.sin(6 * np.pi * f * t)
+    env = (1 - np.exp(-t / 0.008)) * (0.55 + 0.45 * np.exp(-t / 0.25))
+    env *= np.where(t < dur, 1.0, np.exp(-(t - dur) / 0.05))
+    return s * env * vel
 
 
-# ---------------------------------------------------------------- music
-def make_music(D, cues=None):
+def lofi_kick():
+    t = t_axis(0.5)
+    f = 46 + 72 * np.exp(-t / 0.035)
+    s = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.22)
+    s += 0.12 * lp_fast(rng.standard_normal(len(t)), 2000) * np.exp(-t / 0.003)
+    return s
+
+
+def lofi_snare():
+    t = t_axis(0.35)
+    body = np.sin(2 * np.pi * 185 * t) * np.exp(-t / 0.05) * 0.5
+    noise = bp_fast(rng.standard_normal(len(t)), 1200, 4500) * np.exp(-t / 0.085) * 0.75
+    return lp_fast(body + noise, 5000)
+
+
+def lofi_hat(seed):
+    r = np.random.default_rng(seed)
+    n = int(0.09 * SR)
+    t = np.arange(n) / SR
+    return lp_fast(hp_fast(r.standard_normal(n), 5500), 12000) * np.exp(-t / 0.02) * 0.55
+
+
+def shaker(seed):
+    r = np.random.default_rng(seed)
+    n = int(0.07 * SR)
+    t = np.arange(n) / SR
+    e = (1 - np.exp(-t / 0.01)) * np.exp(-t / 0.025)
+    return bp_fast(r.standard_normal(n), 4500, 10000) * e * 0.3
+
+
+def vinyl(D):
+    r = np.random.default_rng(77)
+    n = int(D * SR)
+    hiss = bp_fast(r.standard_normal(n), 300, 6000) * 0.0035
+    clicks = np.zeros(n)
+    k = r.poisson(7 * D)
+    pos = r.integers(0, n, k)
+    clicks[pos] = r.choice([-1, 1], k) * r.exponential(0.05, k)
+    clicks = bp_fast(clicks, 1500, 8000) * 0.5
+    return hiss + clicks
+
+
+def make_music(D, cues=None, stems=False):
     cues = cues or {}
-    intro_end = cues.get('introEnd', 5.6)
-    build_start = cues.get('buildStart', D * 0.7)
-    drop = cues.get('drop', build_start + 2.6)
-    end_start = cues.get('endStart', D - 3.5)
-    bpm = 104
-    beat = 60 / bpm
-    bar = 4 * beat
-    out = np.zeros((2, int((D + 3) * SR)))
-    pad_b = np.zeros(out.shape[1])
-    bass_b = np.zeros(out.shape[1])
-    lead_b = np.zeros(out.shape[1])
-    drum_b = np.zeros(out.shape[1])
-    # IV - V - iii - vi  (F G Em Am) with 7ths, key of C
-    prog = [[53, 57, 60, 64], [55, 59, 62, 65], [52, 55, 59, 62], [57, 60, 64, 67]]
-    roots = [41, 43, 40, 45]
-    arp_pat = [0, 2, 1, 3, 2, 1, 3, 2]
-    nbars = int(np.ceil(D / bar)) + 1
-    kick_s, clap_s, hat_s, hato_s = kick(), clap(), hat(), hat(True)
-
-    def section(t):
-        if t < intro_end:
-            return 'intro'
-        if t >= end_start:
-            return 'end'
-        if build_start <= t < drop:
-            return 'build'
-        return 'groove'
-
+    parts = cues.get('parts') or [cues.get('introEnd', 10.0), D * 0.4, D * 0.7, cues.get('endStart', D - 15)]
+    drums_on = np.ceil((parts[0] - 0.15) / BAR) * BAR       # first downbeat at / after PART 1
+    shaker_on = parts[1]
+    drums_off = np.ceil((parts[3] - 0.15) / BAR) * BAR      # first downbeat at / after the ending
+    N = int((D + 4) * SR)
+    keys = np.zeros((2, N))
+    bass = np.zeros(N)
+    drums = np.zeros(N)
+    r = np.random.default_rng(2024)
+    nbars = int(np.ceil(D / BAR)) + 1
+    final_bar = int((D - 2.2 * BAR) // BAR)  # last bars: hold the I chord
+    hats = [lofi_hat(s) for s in range(8)]
+    shk = [shaker(s) for s in range(8)]
+    kick_s, snare_s = lofi_kick(), lofi_snare()
+    kicks = []
     for b in range(nbars):
-        t0 = b * bar
+        t0 = b * BAR
         if t0 > D:
             break
-        ch = prog[b % 4]
-        add(pad_b, t0, pad_chord(ch, bar + 0.5), 0.9)
-        for i in range(8):
-            tt = t0 + i * beat / 2
-            sec = section(tt)
-            n = ch[arp_pat[i]] + 12
-            add(lead_b, tt, pluck(midi(n)), 0.55 if sec != 'intro' else 0.4)
-        for q in range(4):
-            tt = t0 + q * beat
-            sec = section(tt)
-            if sec in ('groove', 'build'):
-                add(drum_b, tt, kick_s, 0.9)
-                add(bass_b, tt, bass_note(midi(roots[b % 4]), beat * 0.9), 0.7)
-                add(bass_b, tt + beat / 2, bass_note(midi(roots[b % 4] + 12), beat * 0.45), 0.35)
-                if q in (1, 3):
-                    add(drum_b, tt, clap_s, 0.8)
-                add(drum_b, tt + beat / 2, hato_s if q == 3 else hat_s, 0.55)
-                if sec == 'build':
-                    add(drum_b, tt + beat / 4, hat_s, 0.4)
-                    add(drum_b, tt + 3 * beat / 4, hat_s, 0.4)
-            elif sec == 'end':
-                add(bass_b, tt, bass_note(midi(roots[b % 4]), beat * 0.9), 0.45 * max(0, 1 - (tt - end_start) / 3))
-    add(drum_b, build_start, riser(max(0.5, drop - build_start)), 1.0)
-    add(drum_b, drop, crash(), 0.9)
-    add(drum_b, intro_end + 0.05, crash(), 0.6)
-    add(drum_b, max(0, intro_end - 0.5), riser(0.45), 0.6)
-
-    # sidechain duck from the kick grid
-    duck = np.ones(out.shape[1])
-    for b in range(nbars):
-        for q in range(4):
-            tt = b * bar + q * beat
-            if section(tt) in ('groove', 'build'):
-                i = int(tt * SR)
-                n = int(0.22 * SR)
-                if i + n < len(duck):
-                    duck[i:i + n] = np.minimum(duck[i:i + n], 1 - 0.45 * np.exp(-np.arange(n) / SR / 0.09))
-    pad_b *= duck
-    bass_b *= duck
-    # intro: pad/lead filtered & quieter
-    t = np.arange(out.shape[1]) / SR
-    intro_gain = np.clip((t - 0.0) / 1.0, 0, 1) * np.where(t < intro_end, 0.75, 1.0)
-    mix_mono_pad = pad_b * 0.5 * intro_gain
-    lead = lead_b * 0.32 * intro_gain
-    # simple stereo: pad wide (delay), lead ping-pong-ish
-    d = int(0.012 * SR)
-    L = mix_mono_pad + np.concatenate([np.zeros(d), lead[:-d]]) * 0.9 + bass_b * 0.55 + drum_b * 0.5
-    R = np.concatenate([np.zeros(d), mix_mono_pad[:-d]]) + lead + bass_b * 0.55 + drum_b * 0.5
-    out[0], out[1] = L, R
-    # end fade
-    fade = np.clip((D - t) / 3.0, 0, 1)
+        if b >= final_bar:
+            root, voicing = CHORDS[3]
+            hits = [(0.0, max(BAR, D - t0) / BEAT, 0.8)] if b == final_bar else []
+        else:
+            root, voicing = CHORDS[b % 4]
+            # swung comping: two patterns alternating every bar
+            hits = [(0.0, 1.4, 0.85), (1 + SWING, 0.8, 0.55), (3.0, 0.9, 0.6)] if b % 2 == 0 else [(0.0, 2.2, 0.8), (2 + SWING, 1.2, 0.58)]
+        for pos, dur, vel in hits:
+            tt = t0 + pos * BEAT + r.normal(0, 0.006)
+            d = dur * BEAT
+            for k, n in enumerate(voicing):
+                v = max(0.2, vel + r.normal(0, 0.05)) * (0.85 if k == 0 else 1.0)
+                add2(keys, tt + k * 0.011, ep_note(midi(n), d, v), 0.36)
+        if b < final_bar:
+            add(bass, t0, sub_bass(midi(root), 1.35 * BEAT), 0.9)
+            add(bass, t0 + (2 + SWING) * BEAT, sub_bass(midi(root), 1.0 * BEAT, 0.8), 0.9)
+        else:
+            add(bass, t0, sub_bass(midi(root), max(BAR, D - t0)), 0.9 if b == final_bar else 0.0)
+        if drums_on <= t0 < drums_off:
+            ks = [0.0, 2.0] + ([2 + SWING] if b % 2 else [])
+            for p in ks:
+                add(drums, t0 + p * BEAT, kick_s, 0.6)
+                kicks.append(t0 + p * BEAT)
+            for p in (1.0, 3.0):
+                add(drums, t0 + p * BEAT + 0.008, snare_s, 0.65)
+            for q in range(4):
+                for j, off in enumerate((0.0, SWING)):
+                    tt = t0 + (q + off) * BEAT + r.normal(0, 0.004)
+                    add(drums, tt, hats[(b * 8 + q * 2 + j) % 8], (0.75 if j else 0.5) + r.normal(0, 0.06))
+            if t0 >= shaker_on - BAR / 2:
+                for s16 in range(16):
+                    add(drums, t0 + s16 * BEAT / 4, shk[(b + s16) % 8], 0.45 if s16 % 2 else 0.3)
+    t = np.arange(N) / SR
+    # keys: muffled during the hook, the filter opens as the drums come in
+    dark, bright = lp_fast(keys[0], 1300), lp_fast(keys[0], 3000)
+    darkR, brightR = lp_fast(keys[1], 1300), lp_fast(keys[1], 3000)
+    m = np.clip((t - (drums_on - 1.6)) / 1.6, 0, 1)
+    kL, kR = dark * (1 - m) + bright * m, darkR * (1 - m) + brightR * m
+    trem = 0.1 * np.sin(2 * np.pi * 4.2 * t)
+    kL, kR = kL * (1 - trem), kR * (1 + trem)
+    # gentle sidechain from the kick
+    duck = np.ones(N)
+    for k in kicks:
+        i = int(k * SR)
+        n = int(0.25 * SR)
+        if i + n < N:
+            duck[i:i + n] = np.minimum(duck[i:i + n], 1 - 0.22 * np.exp(-np.arange(n) / SR / 0.1))
+    bass = lp_fast(bass, 320) * duck
+    drums = np.tanh(lp_fast(drums, 12000) * 1.4) / 1.4
+    crackle = vinyl(D + 4)
+    L = kL * duck * 1.0 + bass * 0.32 + drums * 0.6 + crackle * 2.5
+    R = kR * duck * 1.0 + bass * 0.32 + drums * 0.6 + np.roll(crackle, 377) * 2.5
+    if stems:
+        return {'keys': (kL + kR) / 2 * duck, 'bass': bass * 0.32, 'drums': drums * 0.6, 'crackle': crackle * 2.5}
+    out = np.vstack([hp_fast(L, 28), hp_fast(R, 28)])
+    fade = np.clip((D - t) / 3.0, 0, 1) * np.clip(t / 0.6, 0, 1)
     out *= fade
-    out = out[:, : int(D * SR)]
-    return out
+    return out[:, : int(D * SR)]
 
 
 # ---------------------------------------------------------------- sfx

@@ -46,4 +46,4 @@ bash tools/build.sh --shop   # 带店铺版
 
 预览：浏览器打开 `stage/index.html?play` 实时播放，`stage/index.html?t=60` 看某一秒的画面；加 `shop`（如 `index.html?shop&play`）看带店铺版。
 
-背景音乐和音效由 `tools/audio.py` 程序合成，不涉及第三方版权素材。
+背景音乐和音效由 `tools/audio.py` 程序合成，不涉及第三方版权素材。背景音乐是 lo-fi 风格（84 BPM、带摇摆的 boom-bap 鼓、电钢琴 Fmaj9-Em7-Dm9-Cmaj9 循环、低音、轻微黑胶底噪），能量集中在 1 kHz 以下，给人声留出空间。编排跟着画面走：开头只有闷一点的电钢琴；PART 1 开始时滤波打开、鼓进来；PART 2 起加一层轻沙锤；片尾鼓停，最后落在一个长和弦上。段落时间点由 `stage/stage.js` 的 `MUSIC.parts` 导出。

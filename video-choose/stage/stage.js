@@ -117,7 +117,8 @@
   ];
   const HUD_VIS = [SW[0], SW[3]];
   const OUT0 = SW[3];
-  const MUSIC = { introEnd: W[0], buildStart: W[3] - 2.4, drop: SW[3], endStart: DURATION - 3.5 };
+  // music cues for tools/audio.py: parts = the four orange wipes (PART 1, PART 2, PART 3, ending)
+  const MUSIC = { introEnd: W[0], parts: W, endStart: DURATION - 3.5 };
 
   /* ---------------- content ---------------- */
   const TIERS = [
@@ -429,7 +430,7 @@
   window.DURATION = DURATION;
   window.SFX = SFX;
   window.MUSIC = MUSIC;
-  window.MUSIC_RMS = 0.075; // quieter bed than the recharge video, leaves room for a voice-over
+  window.MUSIC_RMS = 0.09; // lo-fi bed (darker than the recharge video's, so a higher RMS for the same loudness)
   window.CAPTIONS = CAPS.map(([a, b, x]) => ({ start: +a.toFixed(2), end: +b.toFixed(2), text: x.replace(/<[^>]+>/g, '') }));
   window.TIMES = T;
   window.seek = seek;
