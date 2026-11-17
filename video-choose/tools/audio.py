@@ -197,7 +197,8 @@ def hat_o(seed):
 def make_music(D, cues=None):
     cues = cues or {}
     W = list(cues.get('parts') or [D * 0.1, D * 0.35, D * 0.7, D * 0.88])
-    bounds = [0.0] + W + [D]
+    start = float(cues.get('start', 0.0))   # the beat starts here (hook stamp); only a riser before it
+    bounds = [start] + W + [D]
     N = int((D + 3) * SR)
     drums = np.zeros(N)
     bass = np.zeros(N)
@@ -274,6 +275,8 @@ def make_music(D, cues=None):
             add2(keys, final_t, stab(voicing, 1.6, 1.6), 0.7)
             add2(padb, final_t, pad(voicing, 2.2), 0.5)
             add(bass, final_t, bass_pluck(midi(root - 12), 1.5), 0.9)
+    if start > 0.5:
+        add(drums, 0.0, riser(start) * 0.9, 1.0)
     # kick sidechain (the house "pump")
     t = np.arange(N) / SR
     sc = np.ones(N)
@@ -365,6 +368,31 @@ def sfx(kind, seed=0):
         for k, n in enumerate([72, 76, 79, 84, 88]):
             add(s, k * 0.075, fm_bell(midi(n), 1.6, 1.4, 0.55, 2.0), 0.26)
         return s
+    if kind == 'stamp':
+        # heavy rubber-stamp slam: low thud + dull slap
+        n = int(0.6 * SR)
+        t = np.arange(n) / SR
+        f = 45 + 60 * np.exp(-t / 0.05)
+        s = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.22) * 0.9
+        s += lp_fast(r.standard_normal(n), 2500) * np.exp(-t / 0.025) * 0.7
+        s += bp_fast(r.standard_normal(n), 1500, 6000) * np.exp(-t / 0.008) * 0.4
+        return s
+    if kind == 'glitch':
+        # 0.35 s digital stutter: gated square blips and crushed noise
+        n = int(0.35 * SR)
+        out = np.zeros(n)
+        seg_n = int(0.028 * SR)
+        for k, i in enumerate(range(0, n - seg_n, seg_n)):
+            t = np.arange(seg_n) / SR
+            if k % 3 == 2:
+                continue
+            if r.random() < 0.5:
+                f0 = r.uniform(180, 1400)
+                blk = np.sign(np.sin(2 * np.pi * f0 * t)) * 0.35
+            else:
+                blk = np.repeat(r.standard_normal(seg_n // 8 + 1), 8)[:seg_n] * 0.3
+            out[i:i + seg_n] = blk * (1 - k / (n / seg_n)) ** 0.5
+        return lp_fast(out, 7000)
     raise ValueError(kind)
 
 
@@ -382,7 +410,7 @@ def write_wav(path, stereo):
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MUSIC_DB = -22.0   # music RMS before ducking (voice clips are levelled to about -20 dBFS)
-DUCK_DB = 9.0      # music reduction while the narrator speaks
+DUCK_DB = 10.0     # music reduction while the narrator speaks
 SFX_GAIN = 0.5
 
 

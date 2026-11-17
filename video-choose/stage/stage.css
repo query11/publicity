@@ -46,15 +46,34 @@ html, body {
 .hl { color: var(--brand); }
 
 /* ---------- hook ---------- */
-#hkTitle { position: absolute; left: 0; width: 1920px; top: 110px; text-align: center; font-family: 'ZCOOL QingKe HuangYou', 'Noto Sans SC'; font-size: 132px; line-height: 1.16; letter-spacing: 4px; opacity: 0; }
-#hkCards { position: absolute; left: 0; width: 1920px; top: 470px; display: flex; justify-content: center; gap: 70px; }
-.hk { width: 660px; height: 250px; border-radius: 30px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.16); padding: 34px 40px; opacity: 0; position: relative; }
-.hk .n { position: absolute; left: 40px; top: 34px; width: 64px; height: 64px; border-radius: 50%; background: var(--brand); display: grid; place-items: center; font-size: 36px; font-weight: 900; }
-.hk .t { margin-left: 88px; font-size: 54px; font-weight: 900; line-height: 64px; }
-.hk .chips { margin-top: 38px; display: flex; gap: 14px; flex-wrap: wrap; }
-.hk .chips span { padding: 10px 22px; border-radius: 14px; background: rgba(255,255,255,.1); font-size: 32px; font-weight: 700; color: #e9ecf2; }
-.hk .warn { position: absolute; left: 0; right: 0; top: 274px; text-align: center; font-size: 36px; font-weight: 900; color: #ff8a8a; opacity: 0; }
-.hk .warn b { color: #fff; background: rgba(239,68,68,.85); padding: 4px 16px; border-radius: 10px; margin-left: 10px; }
+.hb { position: absolute; inset: 0; opacity: 0; }
+#hkStatus { left: 430px; top: 360px; width: 1060px; height: 250px; display: flex; align-items: center; gap: 40px; padding: 0 50px; }
+#hkStatus .tile { flex: none; width: 150px; height: 150px; border-radius: 34px; background: linear-gradient(135deg, #1b1d23, #3a3f4b); color: #fff; display: grid; place-items: center; font-size: 46px; font-weight: 900; box-shadow: inset 0 0 0 4px rgba(255,122,26,.8); }
+#hkStatus .info { flex: 1; }
+#hkStatus .nm { font-size: 64px; font-weight: 900; }
+#hkStatus .sub { margin-top: 8px; font-size: 32px; color: var(--ink-3); font-weight: 700; }
+#hkPill { flex: none; font-size: 42px; font-weight: 900; padding: 14px 32px; border-radius: 999px; }
+#hkPill.ok { background: #e7f8ef; color: #0f8a4c; }
+#hkPill.ng { background: #fdecec; color: #d92d20; }
+#hkStamp { position: absolute; left: 1010px; top: 290px; padding: 6px 36px; border: 10px solid #e5322d; border-radius: 24px; color: #e5322d; font-family: 'ZCOOL QingKe HuangYou', 'Noto Sans SC'; font-size: 150px; line-height: 1.1; background: rgba(255,255,255,.06); opacity: 0; transform-origin: center; }
+#hkFlash { position: absolute; inset: 0; background: rgba(229,50,45,.4); opacity: 0; }
+#hbB .l1 { position: absolute; left: 0; width: 1920px; top: 220px; text-align: center; font-size: 76px; font-weight: 900; color: #e9ecf2; }
+#hbB .l2 { position: absolute; left: 0; width: 1920px; top: 360px; text-align: center; }
+#hbB .l2 span { display: inline-block; font-family: 'ZCOOL QingKe HuangYou', 'Noto Sans SC'; font-size: 230px; line-height: 1.1; color: var(--brand); letter-spacing: 8px; }
+#hkCircle { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+#hkBars { left: 330px; top: 270px; width: 1260px; padding: 40px 60px; }
+#hkBars .r { display: flex; align-items: center; gap: 34px; margin: 28px 0; }
+#hkBars .lb { flex: none; width: 230px; font-size: 48px; font-weight: 900; }
+#hkBars .bar { position: relative; flex: 1; height: 76px; border-radius: 38px; background: #eef1f5; overflow: hidden; }
+#hkBars .bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 38px; }
+#hkBuy { background: linear-gradient(90deg, #e8a300, #ffcf4a); }
+#hkUse { background: #3b82f6; }
+#hkWaste { position: absolute; left: 20%; right: 0; top: 0; bottom: 0; display: grid; place-items: center; color: #d92d20; font-size: 40px; font-weight: 900; letter-spacing: 4px; background: repeating-linear-gradient(45deg, rgba(239,68,68,.2) 0 16px, rgba(239,68,68,.06) 16px 32px); border-left: 4px dashed #ef4444; opacity: 0; }
+#hkChips { position: absolute; left: 0; width: 1920px; top: 270px; display: flex; justify-content: center; gap: 34px; }
+#hkChips span { display: flex; align-items: center; gap: 18px; padding: 26px 44px; border-radius: 26px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); font-size: 62px; font-weight: 900; opacity: 0; }
+#hkChips b { width: 70px; height: 70px; border-radius: 50%; background: var(--brand); display: grid; place-items: center; font-size: 40px; }
+#hkPromise { position: absolute; left: 0; width: 1920px; top: 500px; text-align: center; font-family: 'ZCOOL QingKe HuangYou', 'Noto Sans SC'; font-size: 170px; line-height: 1.1; opacity: 0; }
+#hkPromise span { color: var(--brand); }
 
 /* ---------- tiers ---------- */
 #tiers { position: absolute; left: 150px; top: 130px; width: 1620px; height: 680px; display: flex; gap: 60px; }

@@ -44,7 +44,7 @@
     }
     return Math.max(1.6, 0.3 + n / 5.4);
   }
-  const GAP = 0.2; // silence between two lines
+  const GAP = 0.25; // silence between two lines
   const T = {};
   {
     let t = 0.6;
@@ -78,8 +78,18 @@
   ];
   const HUD_VIS = [SW[0], SW[3]];
   const OUT0 = SW[3];
-  // music cues for tools/audio.py: parts = the four orange wipes (PART 1, PART 2, PART 3, ending)
-  const MUSIC = { introEnd: W[0], parts: W, endStart: DURATION - 3.5 };
+  /* hook beats (one per narration line h1..h4) */
+  const vd = id => T[id].b - 0.12 - T[id].a; // voice length of a line
+  const HK = {
+    card: 0.1,
+    stamp: Math.max(T.h1.a + 0.8, T.h1.a + vd('h1') - 0.55), // on "掉了"
+    A: [-1, T.h2.a - 0.1], B: [T.h2.a - 0.1, T.h3.a - 0.1], C: [T.h3.a - 0.1, T.h4.a - 0.1], D: [T.h4.a - 0.1, SW[0] + 1],
+    circle: T.h2.a + 0.45 * vd('h2'),
+    buy: T.h3.a + 0.12 * vd('h3'), use: T.h3.a + 0.5 * vd('h3'), waste: T.h3.a + 0.7 * vd('h3'),
+    chips: [0, 0.2, 0.42].map(k => T.h4.a + k * vd('h4')), promise: T.h4.a + 0.62 * vd('h4'),
+  };
+  // music cues for tools/audio.py: the beat starts on the stamp (only a riser before it), parts = the four orange wipes
+  const MUSIC = { start: HK.stamp, introEnd: W[0], parts: W, endStart: DURATION - 3.5 };
 
   /* ---------------- content ---------------- */
   const TIERS = [
@@ -169,13 +179,20 @@
   }
   reg();
   const FE = [0, 1, 2, 3].map(i => { const p = el['fe' + i]; const L = p.getTotalLength(); p.style.strokeDasharray = `${L}`; return { p, L }; });
+  const ELL = el.hkEll.getTotalLength();
 
   /* ---------------- sound effects ---------------- */
   const SFX = [];
   W.forEach(t => SFX.push({ t: t + 0.05, type: 'whoosh' }));
-  SFX.push({ t: 0.2, type: 'impact', gain: 0.8 });
-  const HK_T = [T.h2.a + 0.1, T.h2.a + 1.0];
-  HK_T.forEach(t => SFX.push({ t, type: 'pop' }));
+  SFX.push({ t: HK.card, type: 'pop', gain: 0.6 });
+  SFX.push({ t: HK.stamp - 0.02, type: 'glitch' });
+  SFX.push({ t: HK.stamp, type: 'stamp' });
+  SFX.push({ t: HK.B[0] + 0.1, type: 'impact', gain: 0.45 });
+  SFX.push({ t: HK.circle, type: 'whoosh', gain: 0.3 });
+  [HK.buy, HK.use].forEach(t => SFX.push({ t, type: 'tick' }));
+  SFX.push({ t: HK.waste, type: 'pop', gain: 0.6 });
+  HK.chips.forEach(t => SFX.push({ t, type: 'pop', gain: 0.6 }));
+  SFX.push({ t: HK.promise, type: 'impact', gain: 0.7 });
   const TIER_IN = TIERS.map((_, i) => SW[0] + 0.35 + i * 0.25);
   TIER_IN.forEach(t => SFX.push({ t, type: 'pop', gain: 0.7 }));
   const BAR_T = TIERS.map((_, i) => T.p3a.a + 0.4 + i * 0.45);
@@ -225,9 +242,41 @@
 
     /* hook */
     if (t < SW[0] + 0.5) {
-      riseIn(el.hkTitle, t, 0.15, 50, 0.7);
-      HK_T.forEach((a, i) => popIn(el['hk' + i], t, a, 0.8));
-      [0, 1].forEach(i => riseIn(el['hw' + i], t, T.h3.a + 0.2 + i * 1.2, 16, 0.35));
+      const beat = (n, [a, b]) => op(n, vis(t, a, b, 0.14));
+      // A: status card, stamped 已失效 with a glitch
+      beat(el.hbA, HK.A);
+      popIn(el.hkStatus, t, HK.card, 0.85);
+      const after = t >= HK.stamp;
+      el.hkPill.className = 'pill ' + (after ? 'ng' : 'ok');
+      el.hkPill.textContent = after ? '已失效' : '生效中';
+      if (t >= HK.stamp - 0.03 && t < HK.stamp + 0.4) {
+        const f = Math.floor(t * FPS);
+        const j = k => (Math.sin(f * 12.9898 + k * 78.233) * 43758.5453) % 1;
+        const dx = 6 + Math.abs(j(3)) * 10;
+        el.hkStatus.style.transform = `translate(${j(1) * 26}px, ${j(2) * 10}px) skewX(${j(4) * 4}deg)`;
+        el.hkStatus.style.boxShadow = `${dx}px 0 0 rgba(255,0,60,.75), ${-dx}px 0 0 rgba(0,220,255,.75), 0 50px 120px rgba(0,0,0,.5)`;
+      } else el.hkStatus.style.boxShadow = '';
+      el.hkStatus.style.filter = after ? 'grayscale(.75) brightness(.92)' : 'none';
+      op(el.hkStamp, after ? 1 : 0);
+      el.hkStamp.style.transform = `rotate(-12deg) scale(${2.4 - 1.4 * E.out(clamp((t - HK.stamp) / 0.13))})`;
+      op(el.hkFlash, after ? 0.9 * (1 - clamp((t - HK.stamp) / 0.35)) : 0);
+      // B: big "开通方式", circled
+      beat(el.hbB, HK.B);
+      riseIn(el.hbB.firstElementChild, t, HK.B[0], 30, 0.3);
+      el.hbB.children[1].style.transform = `scale(${1.3 - 0.3 * E.out(clamp((t - HK.B[0]) / 0.25))})`;
+      el.hkEll.style.strokeDasharray = `${ELL}`;
+      el.hkEll.style.strokeDashoffset = `${ELL * (1 - seg(t, HK.circle, HK.circle + 0.45, 'io'))}`;
+      // C: bought vs used
+      beat(el.hbC, HK.C);
+      riseIn(el.hkBars, t, HK.C[0], 40, 0.4);
+      el.hkBuy.style.width = `${100 * seg(t, HK.buy, HK.buy + 0.7, 'out')}%`;
+      el.hkUse.style.width = `${20 * seg(t, HK.use, HK.use + 0.5, 'out')}%`;
+      op(el.hkWaste, clamp((t - HK.waste) / 0.2));
+      // D: promise
+      beat(el.hbD, HK.D);
+      HK.chips.forEach((a, i) => popIn(el['hc' + i], t, a, 0.6));
+      op(el.hkPromise, clamp((t - HK.promise) / 0.1));
+      el.hkPromise.style.transform = `scale(${1.6 - 0.6 * E.out(clamp((t - HK.promise) / 0.18))})`;
     }
 
     /* PART 1: tiers */

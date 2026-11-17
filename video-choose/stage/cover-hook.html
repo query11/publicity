@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>会员掉了封面</title>
+<link rel="stylesheet" href="../node_modules/@fontsource/noto-sans-sc/700.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/noto-sans-sc/900.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/zcool-qingke-huangyou/400.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0d0f13; font-family: 'Noto Sans SC', sans-serif; color: #fff; -webkit-font-smoothing: antialiased; }
+  .glow { position: absolute; border-radius: 50%; filter: blur(100px); }
+  #g1 { left: -260px; top: -300px; width: 1100px; height: 1100px; background: radial-gradient(circle, rgba(255,80,0,.6), rgba(255,80,0,0) 70%); }
+  #g2 { left: 1150px; top: 300px; width: 1000px; height: 1000px; background: radial-gradient(circle, rgba(229,50,45,.45), rgba(229,50,45,0) 70%); }
+  #grid { position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.07) 1.4px, transparent 1.4px); background-size: 40px 40px; }
+  #tag { position: absolute; left: 110px; top: 110px; padding: 12px 30px; border-radius: 16px; background: #ff5000; font-size: 46px; font-weight: 900; letter-spacing: 2px; }
+  #t1 { position: absolute; left: 100px; top: 220px; font-family: 'ZCOOL QingKe HuangYou', 'Noto Sans SC'; font-size: 170px; line-height: 1.12; letter-spacing: 4px; }
+  #t1 span { color: #ff3b30; }
+  #t2 { position: absolute; left: 106px; top: 640px; font-size: 64px; font-weight: 900; color: #e9ecf2; }
+  #t2 b { color: #ff7a1a; }
+  #t3 { position: absolute; left: 110px; top: 800px; display: flex; gap: 18px; }
+  #t3 span { padding: 14px 30px; border-radius: 16px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); font-size: 44px; font-weight: 900; }
+  #card { position: absolute; left: 1150px; top: 330px; width: 680px; padding: 40px 40px; border-radius: 34px; background: #fff; color: #14161b; display: flex; align-items: center; gap: 28px; box-shadow: 0 50px 120px rgba(0,0,0,.55); filter: grayscale(.6); transform: rotate(2deg); }
+  #card .tile { flex: none; width: 130px; height: 130px; border-radius: 30px; background: linear-gradient(135deg, #1b1d23, #3a3f4b); color: #fff; display: grid; place-items: center; font-size: 40px; font-weight: 900; box-shadow: inset 0 0 0 4px rgba(255,122,26,.8); }
+  #card .nm { font-size: 56px; font-weight: 900; }
+  #card .sub { margin-top: 6px; font-size: 30px; color: #8a93a3; font-weight: 700; }
+  #stamp { position: absolute; left: 1520px; top: 450px; padding: 4px 26px; border: 9px solid #e5322d; border-radius: 22px; color: #e5322d; font-family: 'ZCOOL QingKe HuangYou', 'Noto Sans SC'; font-size: 100px; line-height: 1.1; transform: rotate(-12deg); }
+</style>
+</head>
+<body>
+  <div class="glow" id="g1"></div><div class="glow" id="g2"></div><div id="grid"></div>
+  <div id="tag">开会员前必看</div>
+  <div id="t1">刚开的会员<br>没几天就<span>掉了</span>？</div>
+  <div id="t2">问题多半出在<b>开通方式</b>上</div>
+  <div id="t3"><span>Plus 还是 Pro</span><span>5 种开通方式</span><span>避坑清单</span></div>
+  <div id="card"><div class="tile">Plus</div><div><div class="nm">Plus 会员</div><div class="sub">已开通 3 天</div></div></div>
+  <div id="stamp">已失效</div>
+<script>
+  window.STAGE_READY = (async () => {
+    const text = document.body.innerText;
+    await Promise.all([700, 900].map(w => document.fonts.load(`${w} 40px "Noto Sans SC"`, text)).concat(document.fonts.load('400 100px "ZCOOL QingKe HuangYou"', text)));
+    await document.fonts.ready;
+    return true;
+  })();
+</script>
+</body>
+</html>

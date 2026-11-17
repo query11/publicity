@@ -1,8 +1,8 @@
 """Generate the AI voice-over from stage/script.js with a local TTS model, and check it with speech recognition.
 
 usage: python3 tools/voice.py            (models from tools/get_models.sh; pip install sherpa-onnx soundfile pypinyin)
-env:   VOICE_SID   speaker id of Kokoro v1.1-zh (default 36, a female narrator; 3..57 are female, 58..102 male)
-       VOICE_SPEED speaking speed (default 1.3, a brisk explainer pace of about 5.4 characters per second)
+env:   VOICE_SID   speaker id of Kokoro v1.1-zh (default 58, a male narrator; 3..57 are female, 58..102 male)
+       VOICE_SPEED speaking speed (default 1.05, a natural pace of about 4.7 characters per second)
 
 Writes assets/voice/<key>.flac (44.1 kHz mono, silence trimmed, levelled) and stage/voice.js with each clip's
 duration, which stage.js uses to lay out the timeline. Keys: line id, or shop_<id> for the shop ending.
@@ -23,8 +23,8 @@ MODELS = os.path.join(ROOT, 'models')
 TTS_DIR = os.path.join(MODELS, 'kokoro-multi-lang-v1_1')
 ASR_DIR = os.path.join(MODELS, 'sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17')
 OUT = os.path.join(ROOT, 'assets', 'voice')
-SID = int(os.environ.get('VOICE_SID', 36))
-SPEED = float(os.environ.get('VOICE_SPEED', 1.3))
+SID = int(os.environ.get('VOICE_SID', 58))
+SPEED = float(os.environ.get('VOICE_SPEED', 1.05))
 SR = 44100
 TARGET_RMS_DB = -20.0
 

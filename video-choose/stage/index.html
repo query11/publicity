@@ -14,17 +14,36 @@
 <div id="stage">
   <div id="bg"><div class="glow" id="glow1"></div><div class="glow" id="glow2"></div><div id="grid"></div></div>
 
-  <!-- ============ hook ============ -->
+  <!-- ============ hook: 4 beats, one per narration line h1..h4 ============ -->
   <div class="scene" id="s-hook">
-    <div id="hkTitle">开会员之前<br>先想清楚 <span class="hl">两件事</span></div>
-    <div id="hkCards">
-      <div class="hk" id="hk0"><span class="n">1</span><div class="t">开哪一档</div>
-        <div class="chips"><span>Plus</span><span>Pro 5x</span><span>Pro 20x</span></div>
-        <div class="warn" id="hw0">选错档<b>白花钱</b></div></div>
-      <div class="hk" id="hk1"><span class="n">2</span><div class="t">用什么方式开</div>
-        <div class="chips"><span>5 种开通方式</span><span>哪种不踩坑</span></div>
-        <div class="warn" id="hw1">选错方式<b>说没就没</b></div></div>
+    <!-- A: "刚开的会员，没几天就掉了？" — status card gets stamped 已失效 (dramatised example) -->
+    <div class="hb" id="hbA">
+      <div class="card" id="hkStatus">
+        <div class="tile">Plus</div>
+        <div class="info"><div class="nm">Plus 会员</div><div class="sub">已开通 3 天</div></div>
+        <div class="pill ok" id="hkPill">生效中</div>
+      </div>
+      <div id="hkStamp">已失效</div>
     </div>
+    <!-- B: "问题多半出在开通方式上" -->
+    <div class="hb" id="hbB">
+      <div class="l1">问题多半出在</div>
+      <div class="l2"><span>开通方式</span></div>
+      <svg id="hkCircle" viewBox="0 0 1920 1080" fill="none"><ellipse id="hkEll" cx="960" cy="512" rx="540" ry="165" stroke="#ffd23f" stroke-width="10" stroke-linecap="round" transform="rotate(-3 960 512)"/></svg>
+    </div>
+    <!-- C: "还有人花了好几倍的钱，买了根本用不完的额度" -->
+    <div class="hb" id="hbC">
+      <div class="card" id="hkBars">
+        <div class="r"><div class="lb">买的额度</div><div class="bar"><i id="hkBuy"></i></div></div>
+        <div class="r"><div class="lb">实际用到</div><div class="bar"><i id="hkUse"></i><span id="hkWaste">用不完</span></div></div>
+      </div>
+    </div>
+    <!-- D: "开哪档、怎么开、怎么避坑，这条一次讲清" -->
+    <div class="hb" id="hbD">
+      <div id="hkChips"><span id="hc0"><b>1</b>开哪档</span><span id="hc1"><b>2</b>怎么开</span><span id="hc2"><b>3</b>怎么避坑</span></div>
+      <div id="hkPromise">这条<span>一次讲清</span></div>
+    </div>
+    <div id="hkFlash"></div>
   </div>
 
   <!-- ============ PART 1: tiers ============ -->
