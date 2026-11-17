@@ -1,7 +1,8 @@
 /* Plus 还是 Pro？5 种开通方式避坑 — deterministic timeline.
  * window.seek(t) renders the frame at time t (seconds). window.STAGE_READY resolves once fonts are ready.
  * Open index.html?play to preview in real time, or index.html?t=20 to inspect one frame.
- * The whole timeline is driven by SCRIPT (the narration / caption lines): edit a line and every scene re-flows.
+ * The whole timeline is driven by the narration in stage/script.js and the voice clip durations in stage/voice.js:
+ * edit a line, run tools/voice.py, and every scene re-flows.
  * Wording rules: only "Plus / Pro", no "GPT", no monetary amounts.
  */
 (() => {
@@ -25,81 +26,41 @@
   const SHOP = /[?&]shop\b/.test(location.search);
   document.body.classList.add(SHOP ? 'v-shop' : 'v-clean');
 
-  /* ---------------- narration script (= captions, = AI voice-over lines) ---------------- */
-  // [id, text, extra pause after the line (s)]
-  const SCRIPT = [
-    ['h1', '开会员之前，先想清楚<b>两件事</b>', 0],
-    ['h2', '第一，<b>开哪一档</b>；第二，<b>用什么方式开</b>', 0],
-    ['h3', '档位选错白花钱，方式选错，会员可能<b>说没就没</b>', 0.6],
-
-    ['p1', '先说档位：常见的是 <b>Plus</b>、<b>Pro 5x</b> 和 <b>Pro 20x</b>', 0],
-    ['p2', '三档最大的区别是<b>用量</b>，Pro 还能用更强的 <b>Pro 模型</b>', 0],
-    ['p3a', '注意：Pro 5x 额度已经翻倍，现在约是 Plus 的 <b>10 倍</b>', 0],
-    ['p3b', 'Pro 20x 约 <b>20 倍</b>；官方调整频繁，<b>下单前以官网为准</b>', 0.2],
-    ['p4', '<b>Plus</b>：日常聊天、写东西、查资料，基本够用', 0],
-    ['p5', '<b>Pro 5x</b>：天天写代码、跑长任务，Plus 额度总不够', 0],
-    ['p6', '<b>Pro 20x</b>：一整天高强度用，好几个任务同时跑', 0.4],
-    ['p7a', '拿不准就按这张图走：<b>Plus 额度经常不够</b>，再看 Pro', 0.3],
-    ['p7b', '还是不确定，就<b>先开 Plus</b>，额度不够再升级', 0.6],
-
-    ['m0', '再说开通方式，常见的有 <b>5 种</b>', 0],
-    ['m1a', '第 1 种，<b>官方订阅</b>：自己绑卡付款，最正规', 0],
-    ['m1b', '门槛是要有能境外支付的卡，<b>很多国内卡会被拒</b>', 0.3],
-    ['m2a', '第 2 种，<b>外区 App Store 内购</b>：走苹果扣费，也很稳', 0],
-    ['m2b', '但要准备<b>外区 Apple ID 和礼品卡</b>，步骤比较多', 0.3],
-    ['m3a', '第 3 种，<b>共享号 / 拼车</b>：价格最低', 0],
-    ['m3b', '但号是大家一起用，<b>聊天记录互相能看到</b>，额度也会被占', 0.3],
-    ['m4a', '第 4 种，<b>成品号</b>：买来就能用，不用折腾', 0],
-    ['m4b', '但它不是你原来的号，<b>以前的记录和设置都不在上面</b>', 0.3],
-    ['m5a', '第 5 种，<b>直充自己的号</b>：会员充到你自己的号上，记录都在', 0],
-    ['m5b', '不用自己弄卡，但要提交<b>登录凭证</b>，所以一定要挑靠谱的店', 0.5],
-    ['s1', '一张表总结：有境外卡选<b>官方订阅</b>，有外区 Apple ID 走 <b>App Store</b>', 0],
-    ['s2', '都没有、又想用自己的号，<b>直充最省事</b>', 0.6],
-
-    ['c0', '最后是 <b>5 条避坑清单</b>，建议截图收藏', 0],
-    ['c1', '一，会员要<b>充在自己的号上</b>', 0],
-    ['c2', '二，充完能在官网看到<b>订阅和账单</b>', 0],
-    ['c3', '三，<b>质保写清楚</b>：掉了怎么赔', 0],
-    ['c4', '四，<b>不交账号密码</b>，充完退出所有设备再重新登录', 0],
-    ['c5', '五，价格<b>低得离谱</b>的多问一句，低价渠道容易被风控', 1.6],
-
-    ...(SHOP ? [
-      // shop ending: shop name + QR. Bilibili treats this as commercial promotion -> only publish with a 商业声明 / 花火 order
-      ['o1', '我家用的就是第 5 种：<b>直充自己的号</b>，Plus、Pro 都能充', 0],
-      ['o2', '质保 30 天，可开国内发票，<b>16688 搜 plus小店</b>', 0],
-    ] : [
-      // default ending: no shop, no QR, no selling points
-      ['o1', '总结一下：先按<b>用量</b>选档位，再按<b>手里的条件</b>选方式', 0],
-      ['o2', '下单前对照<b>避坑清单</b>过一遍，觉得有用就点个收藏', 0],
-    ]),
-    ['o3', '你现在用的是哪一种？<b>评论区聊聊</b>', 0],
-  ];
-  // speaking time: ~4.6 Chinese characters per second (AI voice in 剪映 at 1.0x fits inside each window)
+  /* ---------------- narration (stage/script.js) laid out on the voice clips' real durations (stage/voice.js) ---------------- */
+  const N = window.NARRATION;
+  const END = SHOP ? N.endShop : N.endClean;
+  const SCRIPT = [...N.main, ...END];
+  const vkey = id => (SHOP && END.some(r => r[0] === id) ? 'shop_' + id : id);
+  const VOICE = window.VOICE || {};
+  // fallback when a clip is missing: ~5.4 characters per second (the voice runs at 1.3x)
   function speakDur(html) {
     const s = html.replace(/<[^>]+>/g, '');
     let n = 0;
     for (const ch of s) {
-      if (/[一-鿿]/.test(ch)) n += 1;
+      if (/[\u4e00-\u9fff]/.test(ch)) n += 1;
       else if (/[A-Za-z0-9]/.test(ch)) n += 0.42;
-      else if (/[，。；：、！？]/.test(ch)) n += 0.45;
+      else if (/[，。；：、！？]/.test(ch)) n += 0.4;
       else if (ch !== ' ') n += 0.3;
     }
-    return Math.max(2.4, 0.5 + n / 4.6);
+    return Math.max(1.6, 0.3 + n / 5.4);
   }
+  const GAP = 0.2; // silence between two lines
   const T = {};
   {
-    let t = 0.9;
+    let t = 0.6;
     for (const [id, text, pause] of SCRIPT) {
-      const d = speakDur(text);
-      T[id] = { a: t, b: t + d };
-      t += d + 0.3 + pause;
+      const key = vkey(id);
+      const d = VOICE[key] != null ? VOICE[key] : speakDur(text);
+      T[id] = { a: t, b: t + d + 0.12, key, voiced: VOICE[key] != null };
+      t += d + GAP + pause;
     }
   }
   const CAPS = SCRIPT.map(([id, text]) => [T[id].a, T[id].b, text]);
-  const DURATION = Math.ceil((T.o3.b + 2.8) * 10) / 10;
+  const VOICE_CUES = SCRIPT.filter(([id]) => T[id].voiced).map(([id]) => ({ key: T[id].key, t: +T[id].a.toFixed(3) }));
+  const DURATION = Math.ceil((T.o3.b + 2.2) * 10) / 10;
 
   /* ---------------- scene windows ---------------- */
-  const W = [T.p1.a - 0.6, T.m0.a - 0.6, T.c0.a - 0.6, T.o1.a - 0.6]; // orange wipes between parts
+  const W = [T.p1.a - 0.55, T.m0.a - 0.55, T.c0.a - 0.55, T.o1.a - 0.55]; // orange wipes between parts
   const SW = W.map(w => w + 0.3);
   const SCENES = {
     's-hook': [-1, SW[0]],
@@ -213,14 +174,14 @@
   const SFX = [];
   W.forEach(t => SFX.push({ t: t + 0.05, type: 'whoosh' }));
   SFX.push({ t: 0.2, type: 'impact', gain: 0.8 });
-  const HK_T = [T.h2.a + 0.2, T.h2.a + 1.6];
+  const HK_T = [T.h2.a + 0.1, T.h2.a + 1.0];
   HK_T.forEach(t => SFX.push({ t, type: 'pop' }));
   const TIER_IN = TIERS.map((_, i) => SW[0] + 0.35 + i * 0.25);
   TIER_IN.forEach(t => SFX.push({ t, type: 'pop', gain: 0.7 }));
   const BAR_T = TIERS.map((_, i) => T.p3a.a + 0.4 + i * 0.45);
   BAR_T.forEach(t => SFX.push({ t, type: 'tick' }));
   const FA = T.p7a.a;
-  const FLOW = { q1: FA - 0.1, e0: FA + 0.7, plus: FA + 1.1, e1: FA + 1.7, q2: FA + 2.1, e2: FA + 2.9, pro5: FA + 3.2, e3: FA + 3.6, pro20: FA + 3.9, tip: T.p7b.a + 0.1 };
+  const FLOW = { q1: FA - 0.1, e0: FA + 0.5, plus: FA + 0.8, e1: FA + 1.25, q2: FA + 1.55, e2: FA + 2.1, pro5: FA + 2.35, e3: FA + 2.65, pro20: FA + 2.9, tip: T.p7b.a + 0.1 };
   ['q1', 'plus', 'q2', 'pro5', 'pro20', 'tip'].forEach(k => SFX.push({ t: FLOW[k], type: 'pop', gain: 0.6 }));
   const M_IN = METHODS.map((_, i) => T[`m${i + 1}a`].a - 0.25);
   M_IN.forEach((t, i) => i > 0 && SFX.push({ t, type: 'whoosh', gain: 0.35 }));
@@ -266,7 +227,7 @@
     if (t < SW[0] + 0.5) {
       riseIn(el.hkTitle, t, 0.15, 50, 0.7);
       HK_T.forEach((a, i) => popIn(el['hk' + i], t, a, 0.8));
-      [0, 1].forEach(i => riseIn(el['hw' + i], t, T.h3.a + 0.2 + i * 1.6, 16, 0.35));
+      [0, 1].forEach(i => riseIn(el['hw' + i], t, T.h3.a + 0.2 + i * 1.2, 16, 0.35));
     }
 
     /* PART 1: tiers */
@@ -401,6 +362,9 @@
     }
     if (pi >= 0) { const k = seg(t, PARTS[pi][0], PARTS[pi][0] + 0.3, 'out'); el.part.style.transform = `translateX(${(1 - k) * -24}px)`; }
 
+    /* AI voice label: visible for the whole video */
+    op(el.aiTag, 1);
+
     /* captions */
     let k2 = -1;
     for (let i = 0; i < CAPS.length; i++) if (t >= CAPS[i][0] && t < CAPS[i][1]) k2 = i;
@@ -430,9 +394,9 @@
   window.DURATION = DURATION;
   window.SFX = SFX;
   window.MUSIC = MUSIC;
-  window.MUSIC_RMS = 0.09; // lo-fi bed (darker than the recharge video's, so a higher RMS for the same loudness)
   window.CAPTIONS = CAPS.map(([a, b, x]) => ({ start: +a.toFixed(2), end: +b.toFixed(2), text: x.replace(/<[^>]+>/g, '') }));
   window.TIMES = T;
+  window.VOICE_CUES = VOICE_CUES;
   window.seek = seek;
   window.STAGE_READY = ready;
 
