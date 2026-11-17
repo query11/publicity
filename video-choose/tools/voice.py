@@ -1,8 +1,13 @@
-"""Generate the AI voice-over from stage/script.js with a local TTS model, and check it with speech recognition.
+"""Generate the AI voice-over from stage/script.js and check it with speech recognition.
 
-usage: python3 tools/voice.py            (models from tools/get_models.sh; pip install sherpa-onnx soundfile pypinyin)
-env:   VOICE_SID   speaker id of Kokoro v1.1-zh (default 58, a male narrator; 3..57 are female, 58..102 male)
-       VOICE_SPEED speaking speed (default 1.05, a natural pace of about 4.7 characters per second)
+usage: python3 tools/voice.py            (pip install sherpa-onnx soundfile pypinyin; ASR model from tools/get_models.sh)
+
+Providers (VOICE_PROVIDER):
+  minimax (default)  MiniMax speech API, model speech-2.8-hd, voice male-qn-jingying (精英青年).
+                     The API key is a network secret for api.minimaxi.com injected by the session proxy;
+                     elsewhere set MINIMAX_API_KEY. Env: MINIMAX_VOICE, MINIMAX_MODEL, VOICE_SPEED (default 1.0).
+  kokoro             local open-source Kokoro v1.1-zh (models from tools/get_models.sh).
+                     Env: VOICE_SID (58 = male narrator), VOICE_SPEED (1.05).
 
 Writes assets/voice/<key>.flac (44.1 kHz mono, silence trimmed, levelled) and stage/voice.js with each clip's
 duration, which stage.js uses to lay out the timeline. Keys: line id, or shop_<id> for the shop ending.
@@ -23,8 +28,14 @@ MODELS = os.path.join(ROOT, 'models')
 TTS_DIR = os.path.join(MODELS, 'kokoro-multi-lang-v1_1')
 ASR_DIR = os.path.join(MODELS, 'sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17')
 OUT = os.path.join(ROOT, 'assets', 'voice')
+PROVIDER = os.environ.get('VOICE_PROVIDER', 'minimax')
 SID = int(os.environ.get('VOICE_SID', 58))
-SPEED = float(os.environ.get('VOICE_SPEED', 1.05))
+MM_VOICE = os.environ.get('MINIMAX_VOICE', 'male-qn-jingying')
+MM_MODEL = os.environ.get('MINIMAX_MODEL', 'speech-2.8-hd')
+SPEED = float(os.environ.get('VOICE_SPEED', 1.0 if PROVIDER == 'minimax' else 1.05))
+MM_INTERVAL = float(os.environ.get('MINIMAX_INTERVAL', 3.5))  # seconds between requests (low RPM on new accounts)
+_last_call = 0.0
+VOICE_DESC = f'MiniMax {MM_MODEL}, voice {MM_VOICE}, speed {SPEED}' if PROVIDER == 'minimax' else f'Kokoro v1.1-zh, speaker {SID}, speed {SPEED}'
 SR = 44100
 TARGET_RMS_DB = -20.0
 
@@ -57,6 +68,39 @@ def make_tts():
         rule_fsts=f'{M}/date-zh.fst,{M}/phone-zh.fst,{M}/number-zh.fst',
         max_num_sentences=1)
     return sherpa_onnx.OfflineTts(cfg)
+
+
+def minimax_tts(text):
+    """One line through the MiniMax T2A v2 HTTP API -> float64 mono samples at SR."""
+    import urllib.request
+    body = {'model': MM_MODEL, 'text': text, 'stream': False, 'language_boost': 'Chinese', 'output_format': 'hex',
+            'voice_setting': {'voice_id': MM_VOICE, 'speed': SPEED, 'vol': 1.0, 'pitch': 0},
+            'audio_setting': {'sample_rate': SR, 'bitrate': 128000, 'format': 'mp3', 'channel': 1}}
+    key = os.environ.get('MINIMAX_API_KEY', 'proxy-injected')  # in the cloud session the proxy replaces this header
+    req = urllib.request.Request('https://api.minimaxi.com/v1/t2a_v2', data=json.dumps(body).encode(),
+                                 headers={'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key})
+    import time
+    global _last_call
+    for attempt in range(8):
+        wait = MM_INTERVAL - (time.time() - _last_call)
+        if wait > 0:
+            time.sleep(wait)
+        _last_call = time.time()
+        d = json.loads(urllib.request.urlopen(req, timeout=120).read())
+        code = d.get('base_resp', {}).get('status_code')
+        if code == 1002:  # rate limit (requests per minute): back off and retry
+            print('  rate limited, waiting', 15 * (attempt + 1), 's')
+            time.sleep(15 * (attempt + 1))
+            continue
+        if code != 0:
+            raise RuntimeError(f"MiniMax error: {d.get('base_resp')}")
+        break
+    else:
+        raise RuntimeError('MiniMax: still rate limited after retries')
+    mp3 = bytes.fromhex(d['data']['audio'])
+    pcm = subprocess.run(['ffmpeg', '-loglevel', 'error', '-i', '-', '-ac', '1', '-ar', str(SR), '-f', 'f64le', '-'],
+                         input=mp3, capture_output=True, check=True).stdout
+    return np.frombuffer(pcm, dtype=np.float64).copy()
 
 
 def resample(x, sr_in, sr_out):
@@ -129,14 +173,19 @@ def main():
     durations = {}
     todo = lines()
     for key, caption, say in todo:
-        h = hashlib.sha1(f'{say}|{SID}|{SPEED}|{TARGET_RMS_DB}'.encode()).hexdigest()[:12]
+        voice_cfg = f'{MM_MODEL}|{MM_VOICE}' if PROVIDER == 'minimax' else f'{SID}'
+        h = hashlib.sha1(f'{say}|{PROVIDER}|{voice_cfg}|{SPEED}|{TARGET_RMS_DB}'.encode()).hexdigest()[:12]
         path = os.path.join(OUT, key + '.flac')
         if manifest.get(key, {}).get('hash') != h or not os.path.exists(path):
-            tts = tts or make_tts()
-            a = tts.generate(say, sid=SID, speed=SPEED)
-            x = tidy(resample(np.asarray(a.samples, dtype=np.float64), a.sample_rate, SR))
+            if PROVIDER == 'minimax':
+                x = tidy(minimax_tts(say))
+            else:
+                tts = tts or make_tts()
+                a = tts.generate(say, sid=SID, speed=SPEED)
+                x = tidy(resample(np.asarray(a.samples, dtype=np.float64), a.sample_rate, SR))
             sf.write(path, x.astype(np.float32), SR, subtype='PCM_16')
             manifest[key] = {'hash': h, 'say': say}
+            json.dump(manifest, open(man_path, 'w'), ensure_ascii=False, indent=1)  # keep progress if a later line fails
             print('synth', key, f'{len(x) / SR:.2f}s', say)
         durations[key] = round(sf.info(path).frames / SR, 3)
     # drop clips of lines that no longer exist
@@ -148,7 +197,7 @@ def main():
                 os.remove(os.path.join(OUT, k + '.flac'))
     json.dump(manifest, open(man_path, 'w'), ensure_ascii=False, indent=1)
     with open(os.path.join(ROOT, 'stage', 'voice.js'), 'w') as f:
-        f.write(f'// generated by tools/voice.py (Kokoro v1.1-zh, speaker {SID}, speed {SPEED}): clip durations in seconds\n')
+        f.write(f'// generated by tools/voice.py ({VOICE_DESC}): clip durations in seconds\n')
         f.write('window.VOICE = ' + json.dumps(durations, indent=1) + ';\n')
     print('voice.js written,', len(durations), 'clips, total', f'{sum(durations.values()):.1f}s')
 
