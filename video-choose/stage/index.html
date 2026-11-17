@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Plus 还是 Pro · 开通方式避坑</title>
+<link rel="stylesheet" href="../node_modules/@fontsource/noto-sans-sc/400.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/noto-sans-sc/500.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/noto-sans-sc/700.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/noto-sans-sc/900.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/zcool-qingke-huangyou/400.css">
+<link rel="stylesheet" href="stage.css">
+</head>
+<body>
+<div id="stage">
+  <div id="bg"><div class="glow" id="glow1"></div><div class="glow" id="glow2"></div><div id="grid"></div></div>
+
+  <!-- ============ hook ============ -->
+  <div class="scene" id="s-hook">
+    <div id="hkTitle">开会员之前<br>先想清楚 <span class="hl">两件事</span></div>
+    <div id="hkCards">
+      <div class="hk" id="hk0"><span class="n">1</span><div class="t">开哪一档</div>
+        <div class="chips"><span>Plus</span><span>Pro 5x</span><span>Pro 20x</span></div>
+        <div class="warn" id="hw0">选错档<b>白花钱</b></div></div>
+      <div class="hk" id="hk1"><span class="n">2</span><div class="t">用什么方式开</div>
+        <div class="chips"><span>5 种开通方式</span><span>哪种不踩坑</span></div>
+        <div class="warn" id="hw1">选错方式<b>说没就没</b></div></div>
+    </div>
+  </div>
+
+  <!-- ============ PART 1: tiers ============ -->
+  <div class="scene" id="s-tiers">
+    <div id="tiers"></div>
+    <div class="tier-ring" id="tierRing"></div>
+    <div id="tierNote"><span>官方近几个月多次调整额度 · 具体以官网为准</span></div>
+  </div>
+
+  <!-- ============ PART 1: decision flow ============ -->
+  <div class="scene" id="s-flow">
+    <svg id="flowSvg" viewBox="0 0 1920 1080" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+      <path class="fe" id="fe0" d="M960 262 V340 H480 V405"/>
+      <path class="fe" id="fe1" d="M960 262 V340 H1340 V405"/>
+      <path class="fe" id="fe2" d="M1340 535 V610 H1080 V672"/>
+      <path class="fe" id="fe3" d="M1340 535 V610 H1600 V672"/>
+    </svg>
+    <div class="fn q" id="fnQ1" style="left:960px;top:205px"><small>先问自己</small>Plus 额度经常不够用吗？</div>
+    <div class="fl no" id="fl0" style="left:700px;top:340px">不会</div>
+    <div class="fl yes" id="fl1" style="left:1150px;top:340px">经常</div>
+    <div class="fn r" id="fnPlus" style="left:480px;top:470px">Plus<small>日常够用</small></div>
+    <div class="fn q" id="fnQ2" style="left:1340px;top:470px">要整天高强度、多任务同时跑吗？</div>
+    <div class="fl no" id="fl2" style="left:1200px;top:610px">不用</div>
+    <div class="fl yes" id="fl3" style="left:1480px;top:610px">要</div>
+    <div class="fn r" id="fnPro5" style="left:1080px;top:740px">Pro 5x<small>重度使用</small></div>
+    <div class="fn r" id="fnPro20" style="left:1600px;top:740px">Pro 20x<small>高强度</small></div>
+    <div id="fnTip">拿不准？先开 Plus<small>用一段时间，额度不够再升级</small></div>
+  </div>
+
+  <!-- ============ PART 2: five ways ============ -->
+  <div class="scene" id="s-methods">
+    <div id="mSteps"></div>
+    <div id="mCards"></div>
+  </div>
+
+  <!-- ============ PART 2: comparison table ============ -->
+  <div class="scene" id="s-table">
+    <div class="card" id="tbl"></div>
+    <div id="tblTitle">按个人情况选 · 没有绝对的好坏</div>
+  </div>
+
+  <!-- ============ PART 3: checklist ============ -->
+  <div class="scene" id="s-chk">
+    <div class="card" id="chk">
+      <div class="hd"><div class="t">开会员避坑清单</div><div class="s">建议截图收藏</div></div>
+      <div id="chkItems"></div>
+      <div class="ft">开会员前对照一遍 · 5 条都满足再下单</div>
+    </div>
+  </div>
+
+  <!-- ============ outro ============ -->
+  <div class="scene" id="s-outro">
+    <div id="outTitle">我家的做法</div>
+    <div id="outSub">第 5 种 · <b>直充自己的号</b></div>
+    <div id="outChips">
+      <span class="oc">Plus / Pro 都能充</span><span class="oc">付款秒发卡密</span><span class="oc">自助充值</span><span class="oc">质保 30 天</span><span class="oc">官方账单</span><span class="oc">可开国内发票</span>
+    </div>
+    <div id="outAsk">你现在用的是哪一种？<b>评论区聊聊</b></div>
+    <div class="card" id="qrCard">
+      <div class="qr" id="qrShopHolder"></div>
+      <div class="t">扫码进店</div>
+      <div class="u">16688.com.cn 搜索 <b>plus小店</b><br>16688.com.cn/shop/S382939</div>
+    </div>
+    <div id="disclaimer">各档额度以官方公布为准 · 本视频为经验分享，请按自己的情况选择 · 请遵守相关服务条款合规使用</div>
+  </div>
+
+  <!-- ============ HUD ============ -->
+  <div id="hud">
+    <div id="part"><span class="k" id="partK">PART 1</span><span class="l" id="partL">开哪一档</span></div>
+    <div id="prog">
+      <div class="pn" id="pn_0"><span class="c">1</span>选档位</div><span class="pl"></span>
+      <div class="pn" id="pn_1"><span class="c">2</span>选方式</div><span class="pl"></span>
+      <div class="pn" id="pn_2"><span class="c">3</span>避坑清单</div>
+    </div>
+    <div id="cap"></div>
+    <div id="wipe"></div>
+    <div id="fade"></div>
+  </div>
+</div>
+<script src="qr.js"></script>
+<script src="stage.js"></script>
+</body>
+</html>
