@@ -260,7 +260,7 @@ def make_music(D, cues=None):
                 for s16 in range(16):
                     tt = t0 + s16 * BEAT / 4
                     if g(tt):
-                        add2(keys, tt, np.vstack([arp_note(midi(seq[s16 % 6]), BEAT / 4)] * 2) * np.array([[0.6 + 0.4 * (s16 % 2)], [1.0 - 0.4 * (s16 % 2)]]), 0.18)
+                        add2(keys, tt, np.vstack([arp_note(midi(seq[s16 % 6]), BEAT / 4)] * 2) * np.array([[0.6 + 0.4 * (s16 % 2)], [1.0 - 0.4 * (s16 % 2)]]), 0.12)
         # section start: crash; section end: snare fill + riser into the next part
         add(drums, ts, hp_fast(r.standard_normal(int(1.8 * SR)), 5000) * np.exp(-np.arange(int(1.8 * SR)) / SR / 0.7) * 0.35, 0.0 if si == 0 else 1.0)
         if not last:
@@ -410,7 +410,7 @@ def write_wav(path, stereo):
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MUSIC_DB = -22.0   # music RMS before ducking (voice clips are levelled to about -20 dBFS)
-DUCK_DB = 10.0     # music reduction while the narrator speaks
+DUCK_DB = 12.0     # music reduction while the narrator speaks
 SFX_GAIN = 0.5
 
 

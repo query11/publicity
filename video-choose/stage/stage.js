@@ -82,7 +82,7 @@
   const vd = id => T[id].b - 0.12 - T[id].a; // voice length of a line
   const HK = {
     card: 0.1,
-    stamp: Math.max(T.h1.a + 0.8, T.h1.a + vd('h1') - 0.55), // on "掉了"
+    stamp: T.h1.a + vd('h1') + 0.03, // right after "……掉了？" (landing on the word masks it)
     A: [-1, T.h2.a - 0.1], B: [T.h2.a - 0.1, T.h3.a - 0.1], C: [T.h3.a - 0.1, T.h4.a - 0.1], D: [T.h4.a - 0.1, SW[0] + 1],
     circle: T.h2.a + 0.45 * vd('h2'),
     buy: T.h3.a + 0.12 * vd('h3'), use: T.h3.a + 0.5 * vd('h3'), waste: T.h3.a + 0.7 * vd('h3'),

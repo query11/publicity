@@ -7,7 +7,7 @@
 window.NARRATION = {
   main: [
     // hook: pain point -> suspense -> second pain point -> promise (each line has its own visual beat)
-    ['h1', '刚开的会员，没几天就<b>掉了</b>？', 0],
+    ['h1', '刚开的会员，没几天就<b>掉了</b>？', 0.35], // pause: the 已失效 stamp lands right after the question
     ['h2', '问题多半出在<b>开通方式</b>上', 0],
     ['h3', '还有人花了好几倍的钱，买了根本<b>用不完的额度</b>', 0],
     ['h4', '开哪档、怎么开、怎么避坑，<b>这条一次讲清</b>', 0.5],
@@ -26,7 +26,7 @@ window.NARRATION = {
     ['m1a', '一，<b>官方订阅</b>：自己绑卡付款，最正规', 0],
     ['m1b', '但要有能境外支付的卡，<b>很多国内卡会被拒</b>', 0.15],
     ['m2a', '二，<b>外区 App Store 内购</b>：走苹果扣费，也很稳', 0],
-    ['m2b', '但要准备<b>外区 Apple ID 和礼品卡</b>，步骤多', 0.15],
+    ['m2b', '但要有<b>外区 Apple ID</b>，再买<b>礼品卡</b>，步骤多', 0.15],
     ['m3a', '三，<b>共享号拼车</b>：价格最低', 0],
     ['m3b', '但大家共用一个号，<b>聊天记录互相能看到</b>', 0.15],
     ['m4a', '四，<b>成品号</b>：买来就能用', 0],
