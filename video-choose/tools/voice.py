@@ -133,7 +133,7 @@ def tidy(x):
 
 
 # with inverse text normalisation off, the recogniser writes numbers as Chinese numerals: normalise the reference the same way
-NUM = {'16688': '一六六八八', '30': '三十', '20': '二十', '10': '十', '5': '五'}
+NUM = {'16688': '一六六八八', '200': '两百', '100': '一百', '30': '三十', '20': '二十', '10': '十', '5': '五'}
 
 
 def norm_text(s):

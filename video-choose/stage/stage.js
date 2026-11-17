@@ -94,8 +94,8 @@
   /* ---------------- content ---------------- */
   const TIERS = [
     { nm: 'Plus', sb: '入门档 · 日常够用', mult: '约 1×', w: 1 / 20, pro: false, fit: ['日常聊天', '写文案、查资料', '偶尔写点代码'], color: '#2563eb' },
-    { nm: 'Pro 5x', sb: '进阶档 · 重度使用', mult: '约 10×', badge: '已翻倍', w: 10 / 20, pro: true, fit: ['天天写代码', '跑长任务、深度研究', 'Plus 额度总不够'], color: '#7c3aed' },
-    { nm: 'Pro 20x', sb: '顶配档 · 高强度', mult: '约 20×', w: 1, pro: true, fit: ['一整天高强度用', '多个任务同时跑', 'Pro 5x 也不够用'], color: '#a86b00' },
+    { nm: 'Pro 5x', sb: '进阶档 · 重度使用', mult: '约 10×', badge: '已翻倍', rn: 'Pro 100', w: 10 / 20, pro: true, fit: ['天天写代码', '跑长任务、深度研究', 'Plus 额度总不够'], color: '#7c3aed' },
+    { nm: 'Pro 20x', sb: '顶配档 · 高强度', mult: '约 20×', rn: 'Pro 200', w: 1, pro: true, fit: ['一整天高强度用', '多个任务同时跑', 'Pro 5x 也不够用'], color: '#a86b00' },
   ];
   const IC = {
     card: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/>',
@@ -135,7 +135,7 @@
     TIERS.forEach((x, i) => {
       const c = h('div', 'tier');
       c.id = 'tier' + i;
-      c.innerHTML = `<div class="top"><div class="nm">${x.nm}</div><div class="sb">${x.sb}</div></div>
+      c.innerHTML = `<div class="top"><div class="nm">${x.nm}</div><div class="sb">${x.sb}</div></div>${x.rn ? `<div class="rn" id="trn${i}">现名 <b>${x.rn}</b></div>` : ''}
         <div class="row" id="tr0_${i}"><div class="lb">用量</div><div class="mult" id="tm${i}" style="color:${x.color}">${x.badge ? `<span class="bdg">${x.badge}</span>` : ''}${x.mult}</div><div class="bar"><i id="tb${i}"></i></div></div>
         <div class="row yn" id="tr1_${i}"><div class="lb">Pro 模型</div><div class="v ${x.pro ? 'y' : 'n'}">${x.pro ? '✓ 可用' : '—'}</div></div>
         <div class="fit" id="tf${i}" style="color:${x.color}"><div class="lb">适合</div><ul>${x.fit.map(f => `<li><span style="color:var(--ink)">${f}</span></li>`).join('')}</ul></div>
@@ -196,6 +196,8 @@
   const TIER_IN = TIERS.map((_, i) => SW[0] + 0.35 + i * 0.25);
   TIER_IN.forEach(t => SFX.push({ t, type: 'pop', gain: 0.7 }));
   const BAR_T = TIERS.map((_, i) => T.p3a.a + 0.4 + i * 0.45);
+  const RN_T = [null, T.p3d.a + 0.25 * vd('p3d'), T.p3d.a + 0.58 * vd('p3d')]; // as "Pro 100" / "Pro 200" are spoken
+  [1, 2].forEach(i => SFX.push({ t: RN_T[i], type: 'pop', gain: 0.6 }));
   BAR_T.forEach(t => SFX.push({ t, type: 'tick' }));
   const FA = T.p7a.a;
   const FLOW = { q1: FA - 0.1, e0: FA + 0.5, plus: FA + 0.8, e1: FA + 1.25, q2: FA + 1.55, e2: FA + 2.1, pro5: FA + 2.35, e3: FA + 2.65, pro20: FA + 2.9, tip: T.p7b.a + 0.1 };
@@ -293,8 +295,10 @@
         op(el['tm' + i], clamp((t - BAR_T[i] - 0.3) / 0.25));
         riseIn(el['tf' + i], t, T[`p${i + 4}`].a + 0.1, 20, 0.4);
       });
-      op(el.tierNote, vis(t, T.p3b.a, 1e9, 0.3));
-      el.tierNote.style.transform = `scale(${1 + 0.08 * (1 - seg(t, T.p3b.a, T.p3b.a + 0.4, 'out'))})`;
+      op(el.tierNote, vis(t, T.p3c.a, 1e9, 0.3));
+      el.tierNote.style.transform = `scale(${1 + 0.08 * (1 - seg(t, T.p3c.a, T.p3c.a + 0.4, 'out'))})`;
+      // official renames: Pro 5x -> Pro 100, Pro 20x -> Pro 200
+      [1, 2].forEach(i => popIn(el['trn' + i], t, RN_T[i], 0.4, 'rotate(-4deg) '));
       // focus ring + dim others while each tier is described
       let fi = -1;
       for (let i = 0; i < 3; i++) if (t >= T[`p${i + 4}`].a - 0.15 && t < (i < 2 ? T[`p${i + 5}`].a - 0.15 : T.p6.b + 0.2)) fi = i;
