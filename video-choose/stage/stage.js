@@ -34,8 +34,8 @@
 
     ['p1', '先说档位：常见的是 <b>Plus</b>、<b>Pro 5x</b> 和 <b>Pro 20x</b>', 0],
     ['p2', '三档最大的区别是<b>用量</b>，Pro 还能用更强的 <b>Pro 模型</b>', 0],
-    ['p3a', '名字里的 5x、20x，大致是<b>相对 Plus 的用量倍数</b>', 0],
-    ['p3b', '官方最近调整过好几次额度，<b>下单前以官网为准</b>', 0.2],
+    ['p3a', '注意：Pro 5x 额度已经翻倍，现在约是 Plus 的 <b>10 倍</b>', 0],
+    ['p3b', 'Pro 20x 约 <b>20 倍</b>；官方调整频繁，<b>下单前以官网为准</b>', 0.2],
     ['p4', '<b>Plus</b>：日常聊天、写东西、查资料，基本够用', 0],
     ['p5', '<b>Pro 5x</b>：天天写代码、跑长任务，Plus 额度总不够', 0],
     ['p6', '<b>Pro 20x</b>：一整天高强度用，好几个任务同时跑', 0.4],
@@ -122,8 +122,8 @@
   /* ---------------- content ---------------- */
   const TIERS = [
     { nm: 'Plus', sb: '入门档 · 日常够用', mult: '约 1×', w: 1 / 20, pro: false, fit: ['日常聊天', '写文案、查资料', '偶尔写点代码'], color: '#2563eb' },
-    { nm: 'Pro 5x', sb: '进阶档 · 重度使用', mult: '约 5×', w: 5 / 20, pro: true, fit: ['天天写代码', '跑长任务、深度研究', 'Plus 额度总不够'], color: '#7c3aed' },
-    { nm: 'Pro 20x', sb: '顶配档 · 高强度', mult: '约 20×', w: 1, pro: true, fit: ['一整天高强度用', '多个任务同时跑', '5x 也不够用'], color: '#a86b00' },
+    { nm: 'Pro 5x', sb: '进阶档 · 重度使用', mult: '约 10×', badge: '已翻倍', w: 10 / 20, pro: true, fit: ['天天写代码', '跑长任务、深度研究', 'Plus 额度总不够'], color: '#7c3aed' },
+    { nm: 'Pro 20x', sb: '顶配档 · 高强度', mult: '约 20×', w: 1, pro: true, fit: ['一整天高强度用', '多个任务同时跑', 'Pro 5x 也不够用'], color: '#a86b00' },
   ];
   const IC = {
     card: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/>',
@@ -164,7 +164,7 @@
       const c = h('div', 'tier');
       c.id = 'tier' + i;
       c.innerHTML = `<div class="top"><div class="nm">${x.nm}</div><div class="sb">${x.sb}</div></div>
-        <div class="row" id="tr0_${i}"><div class="lb">用量</div><div class="mult" id="tm${i}" style="color:${x.color}">${x.mult}</div><div class="bar"><i id="tb${i}"></i></div></div>
+        <div class="row" id="tr0_${i}"><div class="lb">用量</div><div class="mult" id="tm${i}" style="color:${x.color}">${x.badge ? `<span class="bdg">${x.badge}</span>` : ''}${x.mult}</div><div class="bar"><i id="tb${i}"></i></div></div>
         <div class="row yn" id="tr1_${i}"><div class="lb">Pro 模型</div><div class="v ${x.pro ? 'y' : 'n'}">${x.pro ? '✓ 可用' : '—'}</div></div>
         <div class="fit" id="tf${i}" style="color:${x.color}"><div class="lb">适合</div><ul>${x.fit.map(f => `<li><span style="color:var(--ink)">${f}</span></li>`).join('')}</ul></div>
         <div class="dim" id="td${i}"></div>`;
