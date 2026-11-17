@@ -20,6 +20,11 @@
   const op = (el, v) => { el.style.opacity = v.toFixed(4); el.style.visibility = v <= 0.001 ? 'hidden' : 'visible'; };
   const h = (tag, cls, html) => { const n = document.createElement(tag); if (cls) n.className = cls; if (html != null) n.innerHTML = html; return n; };
 
+  // Two endings. Default = no shop (safe to publish on Bilibili without a commercial declaration).
+  // index.html?shop = ending with shop name, selling points and QR code (commercial promotion).
+  const SHOP = /[?&]shop\b/.test(location.search);
+  document.body.classList.add(SHOP ? 'v-shop' : 'v-clean');
+
   /* ---------------- narration script (= captions, = AI voice-over lines) ---------------- */
   // [id, text, extra pause after the line (s)]
   const SCRIPT = [
@@ -58,8 +63,15 @@
     ['c4', '四，<b>不交账号密码</b>，充完退出所有设备再重新登录', 0],
     ['c5', '五，价格<b>低得离谱</b>的多问一句，低价渠道容易被风控', 1.6],
 
-    ['o1', '我家用的就是第 5 种：<b>直充自己的号</b>，Plus、Pro 都能充', 0],
-    ['o2', '质保 30 天，可开国内发票，<b>16688 搜 plus小店</b>', 0],
+    ...(SHOP ? [
+      // shop ending: shop name + QR. Bilibili treats this as commercial promotion -> only publish with a 商业声明 / 花火 order
+      ['o1', '我家用的就是第 5 种：<b>直充自己的号</b>，Plus、Pro 都能充', 0],
+      ['o2', '质保 30 天，可开国内发票，<b>16688 搜 plus小店</b>', 0],
+    ] : [
+      // default ending: no shop, no QR, no selling points
+      ['o1', '总结一下：先按<b>用量</b>选档位，再按<b>手里的条件</b>选方式', 0],
+      ['o2', '下单前对照<b>避坑清单</b>过一遍，觉得有用就点个收藏', 0],
+    ]),
     ['o3', '你现在用的是哪一种？<b>评论区聊聊</b>', 0],
   ];
   // speaking time: ~4.6 Chinese characters per second (AI voice in 剪映 at 1.0x fits inside each window)
@@ -216,7 +228,11 @@
   SFX.push({ t: T.s2.a + 0.3, type: 'tick' });
   const CHK_T = CHECKS.map((_, i) => T['c' + (i + 1)].a + 0.15);
   CHK_T.forEach(t => SFX.push({ t, type: 'tick', gain: 1.2 }));
-  [0, 1, 2, 3, 4, 5].forEach(i => SFX.push({ t: OUT0 + 1.6 + i * 0.15, type: 'pop', gain: 0.45 }));
+  if (SHOP) [0, 1, 2, 3, 4, 5].forEach(i => SFX.push({ t: OUT0 + 1.6 + i * 0.15, type: 'pop', gain: 0.45 }));
+  else {
+    [0, 1, 2].forEach(i => SFX.push({ t: OUT0 + 0.7 + i * 0.25, type: 'pop', gain: 0.5 }));
+    [0, 1, 2].forEach(i => SFX.push({ t: T.o2.a + 2.0 + i * 0.2, type: 'pop', gain: 0.5 }));
+  }
   SFX.push({ t: T.o3.a, type: 'notify' });
   SFX.sort((a, b) => a.t - b.t);
 
@@ -352,13 +368,22 @@
     }
 
     /* outro */
-    if (t > OUT0 - 0.6) {
+    if (t > OUT0 - 0.6 && SHOP) {
       riseIn(el.outTitle, t, OUT0 + 0.2, 40, 0.6);
       riseIn(el.outSub, t, OUT0 + 0.6, 40, 0.6);
       Array.from(el.outChips.children).forEach((c, i) => riseIn(c, t, OUT0 + 1.6 + i * 0.15, 20, 0.3));
       const q = seg(t, OUT0 + 0.8, OUT0 + 1.5, 'out');
       op(el.qrCard, q); el.qrCard.style.transform = `translateX(${(1 - q) * 90}px)`;
       popIn(el.outAsk, t, T.o3.a, 0.7);
+      op(el.disclaimer, clamp((t - OUT0 - 2.4) / 0.5));
+    }
+    if (t > OUT0 - 0.6 && !SHOP) {
+      riseIn(el.ocTitle, t, OUT0 + 0.2, 40, 0.6);
+      [0, 1, 2].forEach(i => riseIn(el['ocr' + i], t, OUT0 + 0.7 + i * 0.25, 30, 0.45));
+      const q = seg(t, T.o2.a + 1.6, T.o2.a + 2.2, 'out');
+      op(el.ocLike, q); el.ocLike.style.transform = `translateX(${(1 - q) * 90}px)`;
+      [0, 1, 2].forEach(i => popIn(el['ol' + i], t, T.o2.a + 2.0 + i * 0.2, 0.5));
+      popIn(el.ocAsk, t, T.o3.a, 0.7);
       op(el.disclaimer, clamp((t - OUT0 - 2.4) / 0.5));
     }
 

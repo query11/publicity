@@ -77,6 +77,26 @@
 
   <!-- ============ outro ============ -->
   <div class="scene" id="s-outro">
+    <!-- default ending: recap, no shop / QR / selling points -->
+    <div id="outClean">
+      <div id="ocTitle">开会员 记住三步</div>
+      <div id="ocRows">
+        <div class="ocr" id="ocr0"><span class="n">1</span><div><b>选档位</b><small>按用量选：先开 Plus，不够再升 Pro</small></div></div>
+        <div class="ocr" id="ocr1"><span class="n">2</span><div><b>选方式</b><small>有卡走官方 · 有外区 ID 走 App Store · 都没有就直充</small></div></div>
+        <div class="ocr" id="ocr2"><span class="n">3</span><div><b>对照清单</b><small>下单前把 5 条避坑清单过一遍</small></div></div>
+      </div>
+      <div id="ocAsk">你现在用的是哪一种？<b>评论区聊聊</b></div>
+      <div class="card" id="ocLike">
+        <div class="t">觉得有用？</div>
+        <div class="ols">
+          <div class="ol" id="ol0"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ff5000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11v9H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1z"/><path d="M7 11l4-8a2.5 2.5 0 0 1 2.5 2.8L13 9h5.6a2 2 0 0 1 2 2.4l-1.4 7A2 2 0 0 1 17.2 20H7"/></svg><span>点赞</span></div>
+          <div class="ol" id="ol1"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ff5000" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/></svg><span>收藏</span></div>
+          <div class="ol" id="ol2"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ff5000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8M8 13h5"/></svg><span>评论</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- shop ending (index.html?shop): commercial promotion, needs a 商业声明 / 花火 order on Bilibili -->
+    <div id="outShop">
     <div id="outTitle">我家的做法</div>
     <div id="outSub">第 5 种 · <b>直充自己的号</b></div>
     <div id="outChips">
@@ -87,6 +107,7 @@
       <div class="qr" id="qrShopHolder"></div>
       <div class="t">扫码进店</div>
       <div class="u">16688.com.cn 搜索 <b>plus小店</b><br>16688.com.cn/shop/S382939</div>
+    </div>
     </div>
     <div id="disclaimer">各档额度以官方公布为准 · 本视频为经验分享，请按自己的情况选择 · 请遵守相关服务条款合规使用</div>
   </div>
